@@ -8,10 +8,6 @@ type Character = {
     race?: typeof races[number]
 }
 
-const throwDice = (dice: number, diceAmount: number) => {
-    return
-}
-
 registerFlows({
     builder: new SlashCommandBuilder()
         .setName("crea")
