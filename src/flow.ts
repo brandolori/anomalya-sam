@@ -1,4 +1,4 @@
-import { ActionRowBuilder, CacheType, ChatInputCommandInteraction, ModalBuilder, SelectMenuBuilder, SlashCommandBuilder, TextInputBuilder, TextInputStyle } from "discord.js"
+import { ActionRowBuilder, AutocompleteInteraction, CacheType, ChatInputCommandInteraction, ModalBuilder, SelectMenuBuilder, SlashCommandBuilder, TextInputBuilder, TextInputStyle } from "discord.js"
 import { v4 } from "uuid"
 import { client, registerCommands } from "./mud.js"
 
@@ -13,9 +13,10 @@ type Step = { name: string, prompt: string } &
     })
 
 type Command = {
-    steps?: Step[],
     builder: any,
-    callback: (interaction: ChatInputCommandInteraction, data?: any) => void,
+    callback: (interaction: ChatInputCommandInteraction, data?: any, originalInteraction?: ChatInputCommandInteraction) => void,
+    steps?: Step[],
+    autocomplete?: (interaction: AutocompleteInteraction) => void,
 }
 
 
@@ -27,24 +28,31 @@ const registerFlows = (...commands: Command[]) => {
 
         client.on('interactionCreate', async interaction => {
             let responses = {}
-            if (!interaction.isChatInputCommand()) return
-            if (interaction.commandName === command.builder.name) {
+            if (interaction.isChatInputCommand()) {
 
-                let rollingInteraction = interaction
-                if (command.steps)
-                    for (const step of command.steps) {
-                        if (step.type == "input") {
-                            const { data, interaction: newInteraction } = await requestInput(rollingInteraction, step.prompt)
-                            responses[step.name] = data
-                            rollingInteraction = newInteraction
-                        } else if (step.type == 'choice') {
-                            const { data, interaction: newInteraction } = await requestChoice(rollingInteraction, step.options, step.prompt)
-                            responses[step.name] = data
-                            rollingInteraction = newInteraction
+                if (interaction.commandName === command.builder.name) {
+
+                    let rollingInteraction = interaction
+                    if (command.steps)
+                        for (const step of command.steps) {
+                            if (step.type == "input") {
+                                const { data, interaction: newInteraction } = await requestInput(rollingInteraction, step.prompt)
+                                responses[step.name] = data
+                                rollingInteraction = newInteraction
+                            } else if (step.type == 'choice') {
+                                const { data, interaction: newInteraction } = await requestChoice(rollingInteraction, step.options, step.prompt)
+                                responses[step.name] = data
+                                rollingInteraction = newInteraction
+                            }
                         }
-                    }
 
-                command.callback(rollingInteraction, responses)
+                    command.callback(rollingInteraction, responses, interaction)
+                }
+            } else if (interaction.isAutocomplete()) {
+                if (interaction.commandName === command.builder.name) {
+                    command.autocomplete(interaction)
+                }
+
             }
         })
     })
@@ -64,7 +72,7 @@ const showInput = async (interaction: any, modalId: string, inputId: string, pro
     console.log("show modal")
     const modal = new ModalBuilder()
         .setCustomId(modalId)
-        .setTitle(prompt)
+        .setTitle("Inserisci")
 
     const nameInput = new TextInputBuilder()
         .setCustomId(inputId)

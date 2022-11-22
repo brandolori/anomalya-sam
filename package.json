@@ -5,9 +5,9 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "build": "tsc",
-    "watch": "tsc --watch",
-    "start": "node dist/main.js"
+    "tsc:build": "tsc",
+    "tsc:watch": "tsc --watch",
+    "node:start": "node dist/main.js"
   },
   "keywords": [],
   "author": "",
