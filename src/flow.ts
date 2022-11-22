@@ -2,7 +2,7 @@ import { ActionRowBuilder, AutocompleteInteraction, CacheType, ChatInputCommandI
 import { v4 } from "uuid"
 import { client, registerCommands } from "./mud.js"
 
-const timeout = 60_00
+const timeout = 120_000
 
 type Step = { name: string, prompt: string } &
     ({
@@ -28,31 +28,34 @@ const registerFlows = (...commands: Command[]) => {
     commands.forEach(command => {
 
         client.on('interactionCreate', async interaction => {
-            let responses = {}
-            if (interaction.isChatInputCommand()) {
+            try {
+                let responses = {}
+                if (interaction.isChatInputCommand()) {
 
-                if (interaction.commandName === command.builder.name) {
+                    if (interaction.commandName === command.builder.name) {
 
-                    let rollingInteraction = interaction
-                    for (const step of command.steps ?? []) {
-                        if (step.type == "input") {
-                            const { data, interaction: newInteraction } = await requestInput(rollingInteraction, step.prompt)
-                            responses[step.name] = data
-                            rollingInteraction = newInteraction
-                        } else if (step.type == 'choice') {
-                            const { data, interaction: newInteraction } = await requestChoice(rollingInteraction, step.options, step.prompt)
-                            responses[step.name] = data
-                            rollingInteraction = newInteraction
+                        let rollingInteraction = interaction
+                        for (const step of command.steps ?? []) {
+
+                            if (step.type == "input") {
+                                const { data, interaction: newInteraction } = await requestInput(rollingInteraction, step.prompt)
+                                responses[step.name] = data
+                                rollingInteraction = newInteraction
+                            } else if (step.type == 'choice') {
+                                const { data, interaction: newInteraction } = await requestChoice(rollingInteraction, step.options, step.prompt)
+                                responses[step.name] = data
+                                rollingInteraction = newInteraction
+                            }
                         }
-                    }
 
-                    command.callback(rollingInteraction, responses, interaction)
+                        command.callback(rollingInteraction, responses, interaction)
+                    }
+                } else if (interaction.isAutocomplete()) {
+                    if (interaction.commandName === command.builder.name) {
+                        command.autocomplete(interaction)
+                    }
                 }
-            } else if (interaction.isAutocomplete()) {
-                if (interaction.commandName === command.builder.name) {
-                    command.autocomplete(interaction)
-                }
-            }
+            } catch (e) { console.log(`Flow interrupted: ${e}`) }
         })
     })
 

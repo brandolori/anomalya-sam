@@ -16,10 +16,17 @@ class Character extends Model {
 Character.init({
     name: {
         type: DataTypes.STRING,
-        unique: true,
+        allowNull: false,
+        unique: true
     },
-    race: DataTypes.STRING,
-    user: DataTypes.STRING,
+    race: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    user: {
+        type: DataTypes.STRING,
+        allowNull: false
+    }
 }, { sequelize })
 
 await sequelize.sync()
