@@ -117,3 +117,5 @@ out
 .vscode/
 
 dist
+
+data/database.sqlite

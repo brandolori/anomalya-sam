@@ -1,14 +1,6 @@
 import { SlashCommandBuilder } from 'discord.js'
+import { Character, createCharacter, getUserCharacters, races, removeCharacter } from './data.js'
 import { registerFlows } from './flow.js'
-
-const races = ["nano", "elfo"] as const
-
-type Character = {
-    name?: string,
-    race?: typeof races[number]
-}
-
-let characters: { user: string, character: Character }[] = []
 
 const throwDice = (dice: number) => Math.ceil(Math.random() * dice)
 
@@ -21,21 +13,20 @@ registerFlows(
             { name: "name", type: "input", prompt: "Inserisci il nome del personaggio" },
             { name: "race", type: "choice", options: races, prompt: "Scegli la razza del personaggio" },
         ],
-        callback: (interaction, data) => {
-            characters.push({
-                character: data as Character,
-                user: interaction.user.id
-            })
+        callback: (interaction, data: Character) => {
+            createCharacter(interaction.user.id, data)
+
+            interaction.followUp({ content: `${data.name} creato correttamente!`, ephemeral: true })
         }
     },
     {
         builder: new SlashCommandBuilder()
             .setName("personaggi")
             .setDescription("Mostra tutti i tui personaggi"),
-        callback: (interaction) => {
-            const userCharacters = characters.filter(el => el.user == interaction.user.id).map(el => el.character)
+        callback: async (interaction) => {
+            const userCharacters = await getUserCharacters(interaction.user.id)
             const userCharactersString = userCharacters.map(el => `Nome: ${el.name}\nRazza: ${el.race}`).join("\n\n")
-            interaction.reply(`Trovati ${userCharacters.length} personaggi:\n\n${userCharactersString}`)
+            interaction.reply({ content: `Trovati ${userCharacters.length} personaggi${userCharacters.length > 0 ? ":" : ""}\n\n${userCharactersString}`, ephemeral: true })
         }
     },
     {
@@ -48,9 +39,9 @@ registerFlows(
                     .setAutocomplete(true)
                     .setRequired(true)
             ),
-        autocomplete: (interaction) => {
+        autocomplete: async (interaction) => {
             const focusedValue = interaction.options.getFocused()
-            const choices = characters.filter(el => el.user == interaction.user.id).map(el => el.character.name)
+            const choices = (await getUserCharacters(interaction.user.id)).map(el => el.name)
             const filtered = choices.filter(choice => choice.toLowerCase().startsWith(focusedValue.toLowerCase()))
             interaction.respond(
                 filtered.map(choice => ({ name: choice, value: choice })),
@@ -59,22 +50,21 @@ registerFlows(
         steps: [
             { name: "name", type: "input", prompt: "Conferma il nome del pg" },
         ],
-        callback: (interaction, data, originalInteraction) => {
+        callback: async (interaction, data, originalInteraction) => {
             const originalName = originalInteraction.options.getString("personaggio")
             const confirmName = data.name
 
-            if (!characters.find(el => el.user == interaction.user.id && el.character.name == originalName)) {
-                interaction.followUp(`Eliminazione non andata a buon fine: nessun personaggio trovato con questo nome`)
+            if (!(await getUserCharacters(interaction.user.id)).find(el => el.name == originalName)) {
+                await interaction.followUp({ content: `Eliminazione non andata a buon fine: nessun personaggio trovato con questo nome`, ephemeral: true })
                 return
             }
 
             if (originalName == confirmName) {
-                characters = characters
-                    .filter(el => !(el.user == interaction.user.id && el.character.name == originalName))
+                await removeCharacter(interaction.user.id, originalName)
 
-                interaction.followUp(`${originalName} eliminato correttamente`)
+                interaction.followUp({ content: `${originalName} eliminato correttamente`, ephemeral: true })
             } else {
-                interaction.followUp(`Eliminazione non andata a buon fine: il nome inserito non corrisponde`)
+                interaction.followUp({ content: `Eliminazione non andata a buon fine: il nome inserito non corrisponde`, ephemeral: true })
             }
         }
     },

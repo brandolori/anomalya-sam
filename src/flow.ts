@@ -1,6 +1,8 @@
-import { ActionRowBuilder, AutocompleteInteraction, CacheType, ChatInputCommandInteraction, ModalBuilder, SelectMenuBuilder, SlashCommandBuilder, TextInputBuilder, TextInputStyle } from "discord.js"
+import { ActionRowBuilder, AutocompleteInteraction, CacheType, ChatInputCommandInteraction, Interaction, ModalBuilder, SelectMenuBuilder, SlashCommandBuilder, TextInputBuilder, TextInputStyle } from "discord.js"
 import { v4 } from "uuid"
 import { client, registerCommands } from "./mud.js"
+
+const timeout = 60_00
 
 type Step = { name: string, prompt: string } &
     ({
@@ -19,7 +21,6 @@ type Command = {
     autocomplete?: (interaction: AutocompleteInteraction) => void,
 }
 
-
 const registerFlows = (...commands: Command[]) => {
 
     registerCommands(commands.map(el => el.builder))
@@ -33,18 +34,17 @@ const registerFlows = (...commands: Command[]) => {
                 if (interaction.commandName === command.builder.name) {
 
                     let rollingInteraction = interaction
-                    if (command.steps)
-                        for (const step of command.steps) {
-                            if (step.type == "input") {
-                                const { data, interaction: newInteraction } = await requestInput(rollingInteraction, step.prompt)
-                                responses[step.name] = data
-                                rollingInteraction = newInteraction
-                            } else if (step.type == 'choice') {
-                                const { data, interaction: newInteraction } = await requestChoice(rollingInteraction, step.options, step.prompt)
-                                responses[step.name] = data
-                                rollingInteraction = newInteraction
-                            }
+                    for (const step of command.steps ?? []) {
+                        if (step.type == "input") {
+                            const { data, interaction: newInteraction } = await requestInput(rollingInteraction, step.prompt)
+                            responses[step.name] = data
+                            rollingInteraction = newInteraction
+                        } else if (step.type == 'choice') {
+                            const { data, interaction: newInteraction } = await requestChoice(rollingInteraction, step.options, step.prompt)
+                            responses[step.name] = data
+                            rollingInteraction = newInteraction
                         }
+                    }
 
                     command.callback(rollingInteraction, responses, interaction)
                 }
@@ -52,14 +52,13 @@ const registerFlows = (...commands: Command[]) => {
                 if (interaction.commandName === command.builder.name) {
                     command.autocomplete(interaction)
                 }
-
             }
         })
     })
 
 }
 
-const requestInput = async (interaction, prompt: string) => {
+const requestInput = (interaction, prompt: string) => {
 
     const modalId = v4()
     const inputId = v4()
@@ -88,11 +87,11 @@ const showInput = async (interaction: any, modalId: string, inputId: string, pro
 
 const getInputResponse = (modalId: string, inputId: string) => {
 
-    return new Promise<any>(res => {
+    return new Promise<any>((res, rej) => {
 
-        const modalSubmitAction = async (interaction) => {
-            console.log("submit modal")
+        const modalSubmitAction = async (interaction: Interaction) => {
             if (interaction.isModalSubmit() && interaction.customId === modalId) {
+                console.log("submit modal")
                 const name = interaction.fields.getTextInputValue(inputId)
                 client.off("interactionCreate", modalSubmitAction)
                 await interaction.reply({ content: `Hai inserito: ${name}`, ephemeral: true })
@@ -102,10 +101,14 @@ const getInputResponse = (modalId: string, inputId: string) => {
 
         client.on("interactionCreate", modalSubmitAction)
 
+        setTimeout(() => {
+            client.off("interactionCreate", modalSubmitAction)
+            rej("timeout")
+        }, timeout)
     })
 }
 
-const requestChoice = async (interaction, choices: string[], prompt: string) => {
+const requestChoice = (interaction, choices: string[], prompt: string) => {
     const choiceId = v4()
 
     showChoice(interaction, choiceId, choices, prompt)
@@ -135,11 +138,11 @@ const showChoice = async (interaction, choiceId: string, choices: string[], prom
 
 const getChoiceResponse = (choiceId: string) => {
 
-    return new Promise<any>(res => {
+    return new Promise<any>((res, rej) => {
 
         const choiceSubmitAction = async (interaction) => {
             if (interaction.isSelectMenu() && interaction.customId === choiceId) {
-                console.log("Choice recieved")
+                console.log("submit choice")
                 const choice = interaction.values[0]
                 await interaction.update({ content: `Hai scelto: ${choice}`, components: [] })
                 client.off("interactionCreate", choiceSubmitAction)
@@ -147,6 +150,11 @@ const getChoiceResponse = (choiceId: string) => {
             }
         }
         client.on("interactionCreate", choiceSubmitAction)
+
+        setTimeout(() => {
+            client.off("interactionCreate", choiceSubmitAction)
+            rej("timeout")
+        }, timeout)
     })
 }
 
