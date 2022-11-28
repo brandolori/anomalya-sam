@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js'
-import { Character, createCharacter, getEquipmentData, getEquipmentNames, getUserCharacters, races, removeCharacter } from './data.js'
+import { addToInventory, Character, createCharacter, getAllCharacters, getEquipmentData, getEquipmentNames, getUserCharacters, races, removeCharacter } from './data.js'
 import { registerFlows } from './flow.js'
 
 const throwDice = (dice: number) => Math.ceil(Math.random() * dice)
@@ -60,7 +60,7 @@ registerFlows(
             }
 
             if (originalName == confirmName) {
-                await removeCharacter(interaction.user.id, originalName)
+                await removeCharacter(originalName)
 
                 interaction.followUp({ content: `${originalName} eliminato correttamente`, ephemeral: true })
             } else {
@@ -80,7 +80,7 @@ registerFlows(
             ),
         autocomplete: async (interaction) => {
             const focusedValue = interaction.options.getFocused()
-            const choices = (await getEquipmentNames(25)).map(e => e.name)
+            const choices = (await getEquipmentNames()).slice(0, 24)
             const filtered = choices.filter(choice => choice.toLowerCase().startsWith(focusedValue.toLowerCase()))
             interaction.respond(
                 filtered.map(choice => ({ name: choice, value: choice })),
@@ -97,6 +97,49 @@ registerFlows(
                 await interaction.reply({ content: `Nessun oggetto trovato con il nome di ${name}! Sei sicuro di aver scritto bene?`, ephemeral: true })
             }
 
+        }
+    },
+    {
+        builder: new SlashCommandBuilder()
+            .setName("raccogli")
+            .setDescription("Aggiungi un elemento all'inventario del personaggio")
+            .addStringOption(option =>
+                option.setName("personaggio")
+                    .setDescription("Il personaggio a cui dare l'oggetto")
+                    .setAutocomplete(true)
+                    .setRequired(true))
+            .addStringOption(option =>
+                option.setName("oggetto")
+                    .setDescription("L'oggetto da inserire nell'inventario")
+                    .setAutocomplete(true)
+                    .setRequired(true)
+            ),
+        autocomplete: async (interaction) => {
+
+            const focusedOption = interaction.options.getFocused(true)
+
+            if (focusedOption.name === "personaggio") {
+                const focusedValue = focusedOption.value
+                const choices = (await getAllCharacters()).map(el => el.name)
+                const filtered = choices.filter(choice => choice.toLowerCase().startsWith(focusedValue.toLowerCase()))
+                interaction.respond(
+                    filtered.map(choice => ({ name: choice, value: choice })),
+                )
+            } else if (focusedOption.name === "oggetto") {
+                const focusedValue = focusedOption.value
+                const choices = (await getEquipmentNames()).slice(0, 24)
+                const filtered = choices.filter(choice => choice.toLowerCase().startsWith(focusedValue.toLowerCase()))
+                interaction.respond(
+                    filtered.map(choice => ({ name: choice, value: choice })),
+                )
+            }
+        },
+        callback: async (interaction, _, originalInteraction) => {
+            const oggetto = originalInteraction.options.getString("oggetto")
+            const personaggio = originalInteraction.options.getString("personaggio")
+            await addToInventory(personaggio, oggetto, 1)
+
+            await interaction.reply({ content: `Operazione completata con successo!`, ephemeral: true })
         }
     },
     {
