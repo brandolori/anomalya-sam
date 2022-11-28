@@ -7,5 +7,9 @@ const uri =
 const client = new MongoClient(uri)
 const database = client.db('test')
 const equipment = database.collection('equipment')
+const characters = database.collection('characters')
 
-console.log(await equipment.countDocuments())
+const response = await characters.findOne({ name: "Andrea" }, { projection: { inventory: true } })
+
+
+console.log(response)

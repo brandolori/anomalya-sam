@@ -12,7 +12,7 @@ const races = ["nano", "elfo"] as const
 type Character = {
     name: string,
     race: typeof races,
-    intentories: Inventory[]
+    inventory: EquipmentInInventory[]
 }
 
 type Equipment = {
@@ -21,17 +21,24 @@ type Equipment = {
     cost: { quantity: number, unit: "gp" | "sp" | "bp" }
 }
 
-type Inventory = {
-    index: string,
-    items: { equipment: string, amount: number }[]
+type EquipmentInInventory = {
+    equipment: string,
+    location: string,
+    amount: number
 }
 
-const getUserCharacters = (user: string) => {
-    return characters.find({ user }).toArray()
+const getUserCharacters = async (user: string) => {
+
+    const response = await characters.find({ user }).toArray()
+
+    return response as unknown as Character[]
 }
 
-const getAllCharacters = () => {
-    return characters.find().toArray()
+const getAllCharacters = async () => {
+
+    const response = await characters.find().toArray()
+
+    return response as unknown as Character[]
 }
 
 const removeCharacter = (name: string) => {
@@ -42,26 +49,50 @@ const createCharacter = (user: string, character: Character) => {
     return characters.insertOne({ ...character, user, inventories: { index: "main", items: [] } })
 }
 
-const getEquipmentNames = () => {
-    return equipment.find({}, { projection: { _id: false, name: true } }).map(el => el.name).toArray()
+const getEquipmentNames = async () => {
+
+    const response = await equipment.find({}, { projection: { _id: false, name: true } }).map(el => el.name).toArray()
+
+    return response as string[]
 }
 
-const getEquipmentData = (name: string) => {
-    return equipment.findOne({ name: name }, { projection: { _id: false, name: true, cost: true, weight: true } })
+const getEquipmentData = async (name: string) => {
+
+    const response = await equipment.findOne({ name: name }, { projection: { _id: false, name: true, cost: true, weight: true } })
+
+    return response as unknown as Equipment
 }
 
-const addToInventory = (characterName: string, equipmentName: string, amount: number) => {
-    return characters.updateOne({ name: characterName, "inventories.index": "main" },
+const addToInventory = (characterName: string, location: string, equipmentName: string, amount: number) => {
+    return characters.updateOne({ name: characterName },
         {
             $push:
             {
-                "inventories.$.items":
+                inventory:
                 {
                     equipment: equipmentName,
+                    location,
                     amount
                 }
             }
         })
 }
 
-export { races, getUserCharacters, removeCharacter, createCharacter, Character, getEquipmentNames, getEquipmentData, getAllCharacters, addToInventory }
+const getCharacterInventory = async (character: string, location: string) => {
+    const response = (await characters.findOne({ name: character, "inventory.location": location }, { projection: { inventory: true } })) as unknown as Character
+
+    return response.inventory.filter(el => el.location == location)
+}
+
+export {
+    races,
+    getUserCharacters,
+    removeCharacter,
+    createCharacter,
+    Character,
+    getEquipmentNames,
+    getEquipmentData,
+    getAllCharacters,
+    addToInventory,
+    getCharacterInventory
+}

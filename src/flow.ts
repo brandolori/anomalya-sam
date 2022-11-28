@@ -14,7 +14,7 @@ type Step = { name: string, prompt: string } &
         options: any
     })
 
-type Command = {
+export type Command = {
     builder: any,
     callback: (interaction: ChatInputCommandInteraction, data?: any, originalInteraction?: ChatInputCommandInteraction) => void,
     steps?: Step[],
