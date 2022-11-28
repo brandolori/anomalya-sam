@@ -6,6 +6,7 @@ import elimina from './commands/elimina.js'
 import oggetti from './commands/oggetti.js'
 import raccogli from './commands/raccogli.js'
 import tira from './commands/tira.js'
+import getta from './commands/getta.js'
 
 registerFlows(
     crea,
@@ -14,5 +15,6 @@ registerFlows(
     oggetti,
     raccogli,
     tira,
+    getta,
     inventario
 )

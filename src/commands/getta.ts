@@ -1,24 +1,24 @@
 import { GuildMember, SlashCommandBuilder } from "discord.js"
-import { addToInventory, checkEquipmentExists, getAllCharacters, getEquipmentNames, getUserCharacters, userHasCharacter } from "../data.js"
+import { addToInventory, checkEquipmentExists, getAllCharacters, getCharacterInventory, getEquipmentNames, getUserCharacters, removeFromInventory, userHasCharacter } from "../data.js"
 import { Command } from "../flow.js"
 
 const command: Command = {
     builder: new SlashCommandBuilder()
-        .setName("raccogli")
-        .setDescription("Aggiungi un elemento all'inventario del personaggio")
+        .setName("getta")
+        .setDescription("Rimuovi un elemento dall'inventario del personaggio")
         .addStringOption(option =>
             option.setName("personaggio")
-                .setDescription("Il personaggio a cui dare l'oggetto")
+                .setDescription("Il personaggio a cui rimuovere l'oggetto")
                 .setAutocomplete(true)
                 .setRequired(true))
         .addStringOption(option =>
             option.setName("oggetto")
-                .setDescription("L'oggetto da inserire nell'inventario")
+                .setDescription("L'oggetto da rimuovere dall'inventario")
                 .setAutocomplete(true)
                 .setRequired(true))
         .addNumberOption(option =>
             option.setName("numero")
-                .setDescription("La qantità di oggetti da raccogliere")
+                .setDescription("La qantità di oggetti da rimuovere")
         ),
     autocomplete: async (interaction) => {
 
@@ -33,7 +33,8 @@ const command: Command = {
             )
         } else if (focusedOption.name === "oggetto") {
             const focusedValue = focusedOption.value
-            const choices = (await getEquipmentNames())
+            const personaggio = interaction.options.getString("personaggio")
+            const choices = (await getCharacterInventory(personaggio, "zaino")).slice(0, 24).map(el => el.equipment)
             const filtered = choices.filter(choice => choice.toLowerCase().startsWith(focusedValue.toLowerCase()))
             interaction.respond(
                 filtered.map(choice => ({ name: choice, value: choice })),
@@ -55,10 +56,14 @@ const command: Command = {
             await interaction.reply({ content: `Errore: non esiste l'oggetto '${oggetto}'`, ephemeral: true })
             return
         }
+        try {
 
-        await addToInventory(personaggio, "zaino", oggetto, numero)
+            await removeFromInventory(personaggio, "zaino", oggetto, numero)
 
-        await interaction.reply({ content: `Operazione completata con successo!`, ephemeral: true })
+            await interaction.reply({ content: `Operazione completata con successo!`, ephemeral: true })
+        } catch (e) {
+            await interaction.reply({ content: `Errore: ${e.message}`, ephemeral: true })
+        }
     }
 }
 export default command

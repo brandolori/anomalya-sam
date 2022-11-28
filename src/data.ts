@@ -1,3 +1,4 @@
+import { APIInteractionGuildMember, GuildMember, User } from "discord.js"
 import { MongoClient } from "mongodb"
 
 const uri =
@@ -27,11 +28,19 @@ type EquipmentInInventory = {
     amount: number
 }
 
-const getUserCharacters = async (user: string) => {
+const getUserCharacters = async (member: GuildMember) => {
 
-    const response = await characters.find({ user }).toArray()
+    if (member.roles.cache.has("1046812939774087218"))
+        return getAllCharacters()
+
+
+    const response = await characters.find({ user: member.id }).toArray()
 
     return response as unknown as Character[]
+}
+
+const userHasCharacter = async (member: GuildMember, character: string) => {
+    return !!(await getUserCharacters(member)).find(el => el.name == character)
 }
 
 const getAllCharacters = async () => {
@@ -46,7 +55,7 @@ const removeCharacter = (name: string) => {
 }
 
 const createCharacter = (user: string, character: Character) => {
-    return characters.insertOne({ ...character, user, inventories: { index: "main", items: [] } })
+    return characters.insertOne({ ...character, user, inventory: [] })
 }
 
 const getEquipmentNames = async () => {
@@ -63,25 +72,91 @@ const getEquipmentData = async (name: string) => {
     return response as unknown as Equipment
 }
 
-const addToInventory = (characterName: string, location: string, equipmentName: string, amount: number) => {
-    return characters.updateOne({ name: characterName },
-        {
-            $push:
+const addToInventory = async (characterName: string, location: string, equipmentName: string, amount: number) => {
+
+    const currentAmount = (await getCharacterInventory(characterName, location))
+        ?.find(el => el.equipment == equipmentName)
+        ?.amount ?? 0
+
+    if (currentAmount > 0) {
+        return characters.updateOne({ name: characterName, "inventory.equipment": equipmentName },
             {
-                inventory:
+                $set:
                 {
-                    equipment: equipmentName,
-                    location,
-                    amount
+                    "inventory.$":
+                    {
+                        equipment: equipmentName,
+                        location,
+                        amount: currentAmount + amount
+                    }
                 }
-            }
-        })
+            })
+    }
+    else {
+        return characters.updateOne({ name: characterName },
+            {
+                $push:
+                {
+                    inventory:
+                    {
+                        equipment: equipmentName,
+                        location,
+                        amount: amount
+                    }
+                }
+            })
+    }
+}
+
+const removeFromInventory = async (characterName: string, location: string, equipmentName: string, amountToRemove: number) => {
+
+    const currentAmount = (await getCharacterInventory(characterName, location))
+        ?.find(el => el.equipment == equipmentName)
+        ?.amount ?? 0
+
+    if (currentAmount == 0)
+        throw new Error(`'${characterName}' non ha ${equipmentName}`)
+
+    if (currentAmount > amountToRemove) {
+        return characters.updateOne({ name: characterName, "inventory.equipment": equipmentName },
+            {
+                $set:
+                {
+                    "inventory.$":
+                    {
+                        equipment: equipmentName,
+                        location,
+                        amount: currentAmount - amountToRemove
+                    }
+                }
+            })
+    }
+    else {
+        return characters.updateOne({ name: characterName },
+            {
+                $pull:
+                {
+                    inventory:
+                    {
+                        equipment: equipmentName,
+                        location,
+                    }
+                }
+            })
+    }
+}
+
+const checkCharacterExists = async (name: string) => {
+    return (await characters.countDocuments({ name })) > 0
+}
+
+const checkEquipmentExists = async (name: string) => {
+    return (await equipment.countDocuments({ name })) > 0
 }
 
 const getCharacterInventory = async (character: string, location: string) => {
     const response = (await characters.findOne({ name: character, "inventory.location": location }, { projection: { inventory: true } })) as unknown as Character
-
-    return response.inventory.filter(el => el.location == location)
+    return response?.inventory?.filter(el => el.location == location) ?? []
 }
 
 export {
@@ -94,5 +169,9 @@ export {
     getEquipmentData,
     getAllCharacters,
     addToInventory,
-    getCharacterInventory
+    getCharacterInventory,
+    checkCharacterExists,
+    checkEquipmentExists,
+    userHasCharacter,
+    removeFromInventory
 }

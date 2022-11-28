@@ -1,5 +1,5 @@
-import { SlashCommandBuilder } from "discord.js"
-import { getUserCharacters, removeCharacter } from "../data.js"
+import { APIInteractionGuildMember, GuildMember, SlashCommandBuilder } from "discord.js"
+import { getUserCharacters, removeCharacter, userHasCharacter } from "../data.js"
 import { Command } from "../flow.js"
 
 const command: Command = {
@@ -14,7 +14,7 @@ const command: Command = {
         ),
     autocomplete: async (interaction) => {
         const focusedValue = interaction.options.getFocused()
-        const choices = (await getUserCharacters(interaction.user.id)).map(el => el.name)
+        const choices = (await getUserCharacters(interaction.member as GuildMember)).map(el => el.name)
         const filtered = choices.filter(choice => choice.toLowerCase().startsWith(focusedValue.toLowerCase()))
         interaction.respond(
             filtered.map(choice => ({ name: choice, value: choice })),
@@ -27,7 +27,7 @@ const command: Command = {
         const originalName = originalInteraction.options.getString("personaggio")
         const confirmName = data.name
 
-        if (!(await getUserCharacters(interaction.user.id)).find(el => el.name == originalName)) {
+        if (!(await userHasCharacter(interaction.member as GuildMember, originalName))) {
             await interaction.followUp({ content: `Eliminazione non andata a buon fine: nessun personaggio trovato con questo nome`, ephemeral: true })
             return
         }

@@ -1,5 +1,5 @@
-import { SlashCommandBuilder } from "discord.js"
-import { getAllCharacters, getCharacterInventory } from "../data.js"
+import { chatInputApplicationCommandMention, GuildMember, SlashCommandBuilder } from "discord.js"
+import { getAllCharacters, getCharacterInventory, userHasCharacter } from "../data.js"
 import { Command } from "../flow.js"
 
 const command: Command = {
@@ -23,8 +23,15 @@ const command: Command = {
     },
     callback: async (interaction, _, originalInteraction) => {
         const characterName = originalInteraction.options.getString("personaggio")
+
+        if (!(await userHasCharacter(interaction.member as GuildMember, characterName))) {
+            await interaction.reply({ content: `Errore: non esiste il personaggio '${characterName}`, ephemeral: true })
+            return
+        }
+
         const equipment = await getCharacterInventory(characterName, "zaino")
         const equipmentString = equipment.map(el => `${el.amount} ${el.equipment}`).join("\n")
+
         await interaction.reply({ content: `Inventario di ${characterName}:\n\n${equipmentString}`, ephemeral: true })
     }
 }
