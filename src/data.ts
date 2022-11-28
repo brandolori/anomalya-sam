@@ -113,21 +113,23 @@ const addToInventory = async (characterName: string, location: string, equipment
 
 const removeFromInventory = async (characterName: string, location: string, equipmentName: string, amountToRemove: number) => {
 
+    const { index } = await equipment.findOne({ name: equipmentName })
+
     const currentAmount = (await getCharacterInventory(characterName, location))
-        ?.find(el => el.equipment == equipmentName)
+        ?.find(el => el.equipment == index)
         ?.amount ?? 0
 
     if (currentAmount == 0)
         throw new Error(`'${characterName}' non ha ${equipmentName}`)
 
     if (currentAmount > amountToRemove) {
-        return characters.updateOne({ name: characterName, "inventory.equipment": equipmentName },
+        return characters.updateOne({ name: characterName, "inventory.equipment": index },
             {
                 $set:
                 {
                     "inventory.$":
                     {
-                        equipment: equipmentName,
+                        equipment: index,
                         location,
                         amount: currentAmount - amountToRemove
                     }
@@ -141,7 +143,7 @@ const removeFromInventory = async (characterName: string, location: string, equi
                 {
                     inventory:
                     {
-                        equipment: equipmentName,
+                        equipment: index,
                         location,
                     }
                 }
@@ -162,9 +164,45 @@ const getCharacterInventory = async (character: string, location: string) => {
     return response?.inventory?.filter(el => el.location == location) ?? []
 }
 
-const getCharacterInventoryWithNames = async (character: string, location: string) => {
-    const response = (await characters.findOne({ name: character, "inventory.location": location }, { projection: { inventory: true } })) as unknown as Character
-    return response?.inventory?.filter(el => el.location == location) ?? []
+const getExpandedCharacterInventory = async (character: string, location: string) => {
+
+    const aggregation = await characters.aggregate([
+        {
+            $match: {
+                name: character
+            }
+        },
+        {
+            $project: {
+                inventory: {
+                    $filter: {
+                        input: "$inventory",
+                        as: "inventory",
+                        cond: { $eq: ["$$inventory.location", location] }
+                    }
+                }
+            }
+        },
+        {
+            $lookup: {
+                from: "equipment",
+                localField: "inventory.equipment",
+                foreignField: "index",
+                as: "equipmentData"
+            }
+        },
+        {
+            $project: {
+                _id: false,
+                inventory: true,
+                equipmentData: true
+            }
+        }
+    ]).toArray()
+
+    const inventory = aggregation[0]
+
+    return inventory.inventory.map((el, i) => ({ ...el, ...inventory.equipmentData[i] })) as (Equipment & EquipmentInInventory)[]
 }
 
 export {
@@ -181,5 +219,6 @@ export {
     checkCharacterExists,
     checkEquipmentExists,
     userHasCharacter,
-    removeFromInventory
+    removeFromInventory,
+    getExpandedCharacterInventory
 }

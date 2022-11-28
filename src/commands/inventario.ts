@@ -1,5 +1,5 @@
 import { chatInputApplicationCommandMention, GuildMember, SlashCommandBuilder } from "discord.js"
-import { getAllCharacters, getCharacterInventory, userHasCharacter } from "../data.js"
+import { getAllCharacters, getCharacterInventory, getExpandedCharacterInventory, userHasCharacter } from "../data.js"
 import { Command } from "../flow.js"
 
 const command: Command = {
@@ -29,8 +29,8 @@ const command: Command = {
             return
         }
 
-        const equipment = await getCharacterInventory(characterName, "zaino")
-        const equipmentString = equipment.map(el => `${el.amount} ${el.equipment}`).join("\n")
+        const equipment = await getExpandedCharacterInventory(characterName, "zaino")
+        const equipmentString = equipment.map(el => `${el.amount} ${el.name}`).join("\n")
 
         await interaction.reply({ content: `Inventario di ${characterName}:\n\n${equipmentString}`, ephemeral: true })
     }

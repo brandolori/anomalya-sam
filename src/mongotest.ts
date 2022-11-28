@@ -10,6 +10,42 @@ const equipment = database.collection('equipment')
 const characters = database.collection('characters')
 
 const response = await characters.findOne({ name: "Andrea" }, { projection: { inventory: true } })
+const a = await characters.aggregate([
+    {
+        $match: {
+            name: "Batman"
+        }
+    },
+    {
+        $project: {
+            inventory: {
+                $filter: {
+                    input: "$inventory",
+                    as: "inventory",
+                    cond: { $eq: ["$$inventory.location", "zaino"] }
+                }
+            }
+        }
+    },
+    {
+        $lookup: {
+            from: "equipment",
+            localField: "inventory.equipment",
+            foreignField: "index",
+            as: "equipmentData"
+        }
+    },
+    {
+        $project: {
+            _id: false,
+            inventory: true,
+            equipmentData: true
+        }
+    }
+]).toArray()
 
 
-console.log(response)
+client.close()
+
+console.log(a)
+

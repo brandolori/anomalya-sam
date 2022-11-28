@@ -1,5 +1,5 @@
 import { GuildMember, SlashCommandBuilder } from "discord.js"
-import { addToInventory, checkEquipmentExists, getAllCharacters, getCharacterInventory, getEquipmentNames, getUserCharacters, removeFromInventory, userHasCharacter } from "../data.js"
+import { addToInventory, checkEquipmentExists, getAllCharacters, getCharacterInventory, getEquipmentNames, getExpandedCharacterInventory, getUserCharacters, removeFromInventory, userHasCharacter } from "../data.js"
 import { Command } from "../flow.js"
 
 const command: Command = {
@@ -34,7 +34,7 @@ const command: Command = {
         } else if (focusedOption.name === "oggetto") {
             const focusedValue = focusedOption.value
             const personaggio = interaction.options.getString("personaggio")
-            const choices = (await getCharacterInventory(personaggio, "zaino")).slice(0, 24).map(el => el.equipment)
+            const choices = (await getExpandedCharacterInventory(personaggio, "zaino")).slice(0, 24).map(el => el.name)
             const filtered = choices.filter(choice => choice.toLowerCase().startsWith(focusedValue.toLowerCase()))
             interaction.respond(
                 filtered.map(choice => ({ name: choice, value: choice })),
@@ -42,7 +42,7 @@ const command: Command = {
         }
     },
     callback: async (interaction, _, originalInteraction) => {
-        const oggetto = originalInteraction.options.getString("oggetto")
+        const equipmentName = originalInteraction.options.getString("oggetto")
         const personaggio = originalInteraction.options.getString("personaggio")
         const numeroOption = originalInteraction.options.getNumber("numero") ?? 1
         const numero = Math.max(numeroOption, 1)
@@ -52,13 +52,13 @@ const command: Command = {
             return
         }
 
-        if (!(await checkEquipmentExists(oggetto))) {
-            await interaction.reply({ content: `Errore: non esiste l'oggetto '${oggetto}'`, ephemeral: true })
+        if (!(await checkEquipmentExists(equipmentName))) {
+            await interaction.reply({ content: `Errore: non esiste l'oggetto '${equipmentName}'`, ephemeral: true })
             return
         }
         try {
 
-            await removeFromInventory(personaggio, "zaino", oggetto, numero)
+            await removeFromInventory(personaggio, "zaino", equipmentName, numero)
 
             await interaction.reply({ content: `Operazione completata con successo!`, ephemeral: true })
         } catch (e) {
