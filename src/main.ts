@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js'
-import { Character, createCharacter, getUserCharacters, races, removeCharacter } from './data.js'
+import { Character, createCharacter, getEquipmentData, getEquipmentNames, getUserCharacters, races, removeCharacter } from './data.js'
 import { registerFlows } from './flow.js'
 
 const throwDice = (dice: number) => Math.ceil(Math.random() * dice)
@@ -13,8 +13,8 @@ registerFlows(
             { name: "name", type: "input", prompt: "Inserisci il nome del personaggio" },
             { name: "race", type: "choice", options: races, prompt: "Scegli la razza del personaggio" },
         ],
-        callback: (interaction, data: Character) => {
-            createCharacter(interaction.user.id, data)
+        callback: async (interaction, data: Character) => {
+            await createCharacter(interaction.user.id, data)
 
             interaction.followUp({ content: `${data.name} creato correttamente!`, ephemeral: true })
         }
@@ -66,6 +66,37 @@ registerFlows(
             } else {
                 interaction.followUp({ content: `Eliminazione non andata a buon fine: il nome inserito non corrisponde`, ephemeral: true })
             }
+        }
+    },
+    {
+        builder: new SlashCommandBuilder()
+            .setName("oggetti")
+            .setDescription("Visualizza informazioni su un oggetto")
+            .addStringOption(option =>
+                option.setName("oggetto")
+                    .setDescription("L'oggetto di cui visualizzare le informazioni")
+                    .setAutocomplete(true)
+                    .setRequired(true)
+            ),
+        autocomplete: async (interaction) => {
+            const focusedValue = interaction.options.getFocused()
+            const choices = (await getEquipmentNames(25)).map(e => e.name)
+            const filtered = choices.filter(choice => choice.toLowerCase().startsWith(focusedValue.toLowerCase()))
+            interaction.respond(
+                filtered.map(choice => ({ name: choice, value: choice })),
+            )
+        },
+        callback: async (interaction, _, originalInteraction) => {
+            const name = originalInteraction.options.getString("oggetto")
+            const eqData = await getEquipmentData(name)
+
+            if (eqData) {
+                await interaction.reply({ content: `Informazioni su ${eqData.name}:\nCosto: ${eqData.cost.quantity} ${eqData.cost.unit}\nPeso: ${eqData.weight} lbs`, ephemeral: true })
+            }
+            else {
+                await interaction.reply({ content: `Nessun oggetto trovato con il nome di ${name}! Sei sicuro di aver scritto bene?`, ephemeral: true })
+            }
+
         }
     },
     {

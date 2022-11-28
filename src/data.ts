@@ -1,61 +1,37 @@
-import { DataTypes, Model, Sequelize } from 'sequelize'
+import { MongoClient } from "mongodb"
 
-const sequelize = new Sequelize({
-    dialect: 'sqlite',
-    storage: './data/database.sqlite',
-    logging: false
-})
-
-await sequelize.authenticate()
-
-class Character extends Model {
-    name?: string
-    race?: typeof races[number]
-}
-
-Character.init({
-    name: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        unique: true
-    },
-    race: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    user: {
-        type: DataTypes.STRING,
-        allowNull: false
-    }
-}, { sequelize })
-
-await sequelize.sync()
+const uri =
+    "mongodb://127.0.0.1:27017"
+const client = new MongoClient(uri)
+const database = client.db('test')
+const equipment = database.collection('equipment')
+const characters = database.collection('characters')
 
 const races = ["nano", "elfo"] as const
 
+type Character = {
+    name: string,
+    race: typeof races,
+}
+
 const getUserCharacters = (user: string) => {
-    return Character.findAll({
-        where: {
-            user: user
-        }
-    })
+    return characters.find({ user }).toArray()
 }
 
 const removeCharacter = (user: string, name: string) => {
-    return Character.destroy({
-        where: {
-            user: user,
-            name: name
-        }
-    })
+    return characters.deleteOne({ user, name })
 }
 
 const createCharacter = (user: string, character: Character) => {
-    Character.create({
-        name: character.name,
-        race: character.race,
-        user: user
-    })
+    return characters.insertOne({ ...character, user })
 }
 
-export { races, getUserCharacters, removeCharacter, createCharacter, Character }
+const getEquipmentNames = (limit: number) => {
+    return equipment.find({}, { projection: { _id: false, name: true }, limit: limit }).toArray()
+}
+
+const getEquipmentData = (name: string) => {
+    return equipment.findOne({ name: name }, { projection: { _id: false, name: true, cost: true, weight: true } })
+}
+
+export { races, getUserCharacters, removeCharacter, createCharacter, Character, getEquipmentNames, getEquipmentData }
