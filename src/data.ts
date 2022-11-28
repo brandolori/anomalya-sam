@@ -18,6 +18,7 @@ type Character = {
 
 type Equipment = {
     name: string,
+    index: string,
     weight: number,
     cost: { quantity: number, unit: "gp" | "sp" | "bp" }
 }
@@ -74,18 +75,20 @@ const getEquipmentData = async (name: string) => {
 
 const addToInventory = async (characterName: string, location: string, equipmentName: string, amount: number) => {
 
+    const { index } = await equipment.findOne({ name: equipmentName })
+
     const currentAmount = (await getCharacterInventory(characterName, location))
-        ?.find(el => el.equipment == equipmentName)
+        ?.find(el => el.equipment == index)
         ?.amount ?? 0
 
     if (currentAmount > 0) {
-        return characters.updateOne({ name: characterName, "inventory.equipment": equipmentName },
+        return characters.updateOne({ name: characterName, "inventory.equipment": index },
             {
                 $set:
                 {
                     "inventory.$":
                     {
-                        equipment: equipmentName,
+                        equipment: index,
                         location,
                         amount: currentAmount + amount
                     }
@@ -99,7 +102,7 @@ const addToInventory = async (characterName: string, location: string, equipment
                 {
                     inventory:
                     {
-                        equipment: equipmentName,
+                        equipment: index,
                         location,
                         amount: amount
                     }
@@ -155,6 +158,11 @@ const checkEquipmentExists = async (name: string) => {
 }
 
 const getCharacterInventory = async (character: string, location: string) => {
+    const response = (await characters.findOne({ name: character, "inventory.location": location }, { projection: { inventory: true } })) as unknown as Character
+    return response?.inventory?.filter(el => el.location == location) ?? []
+}
+
+const getCharacterInventoryWithNames = async (character: string, location: string) => {
     const response = (await characters.findOne({ name: character, "inventory.location": location }, { projection: { inventory: true } })) as unknown as Character
     return response?.inventory?.filter(el => el.location == location) ?? []
 }

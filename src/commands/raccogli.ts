@@ -33,7 +33,7 @@ const command: Command = {
             )
         } else if (focusedOption.name === "oggetto") {
             const focusedValue = focusedOption.value
-            const choices = (await getEquipmentNames())
+            const choices = (await getEquipmentNames()).slice(0, 24)
             const filtered = choices.filter(choice => choice.toLowerCase().startsWith(focusedValue.toLowerCase()))
             interaction.respond(
                 filtered.map(choice => ({ name: choice, value: choice })),
