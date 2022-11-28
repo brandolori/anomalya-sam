@@ -4,14 +4,16 @@ import { client, registerCommands } from "./mud.js"
 
 const timeout = 120_000
 
-type Step = { name: string, prompt: string } &
+type Step = { name: string, } &
     ({
         type: "input",
+        prompt: string[]
     }
         |
     {
         type: "choice",
-        options: any
+        options: any,
+        prompt: string
     })
 
 export type Command = {
@@ -61,44 +63,57 @@ const registerFlows = (...commands: Command[]) => {
 
 }
 
-const requestInput = (interaction, prompt: string) => {
+const requestInput = async (interaction, prompts: string[]) => {
 
     const modalId = v4()
-    const inputId = v4()
 
-    showInput(interaction, modalId, inputId, prompt)
-    return getInputResponse(modalId, inputId)
+    const inputGuids = await showInput(interaction, modalId, prompts)
+    return getInputResponse(modalId, inputGuids)
 }
 
-const showInput = async (interaction: any, modalId: string, inputId: string, prompt: string) => {
+const showInput = async (interaction: any, modalId: string, prompts: string[]) => {
     console.log("show modal")
+
     const modal = new ModalBuilder()
         .setCustomId(modalId)
         .setTitle("Inserisci")
 
-    const nameInput = new TextInputBuilder()
-        .setCustomId(inputId)
-        .setLabel(prompt)
-        .setStyle(TextInputStyle.Short)
+    const inputGuids = prompts.map(prompt => {
 
-    const firstActionRow = new ActionRowBuilder<TextInputBuilder>().addComponents(nameInput)
+        const inputId = v4()
 
-    modal.addComponents(firstActionRow)
+        const nameInput = new TextInputBuilder()
+            .setCustomId(inputId)
+            .setLabel(prompt)
+            .setStyle(TextInputStyle.Short)
+
+        const firstActionRow = new ActionRowBuilder<TextInputBuilder>().addComponents(nameInput)
+
+        modal.addComponents(firstActionRow)
+
+        return inputId
+    })
+
+
 
     await interaction.showModal(modal)
+
+    return inputGuids
 }
 
-const getInputResponse = (modalId: string, inputId: string) => {
+const getInputResponse = (modalId: string, inputIds: string[]) => {
 
     return new Promise<any>((res, rej) => {
 
         const modalSubmitAction = async (interaction: Interaction) => {
             if (interaction.isModalSubmit() && interaction.customId === modalId) {
                 console.log("submit modal")
-                const name = interaction.fields.getTextInputValue(inputId)
+
+                const data = inputIds.map(el => interaction.fields.getTextInputValue(el))
+                console.log("data:", data)
                 client.off("interactionCreate", modalSubmitAction)
-                await interaction.reply({ content: `Hai inserito: ${name}`, ephemeral: true })
-                res({ data: name, interaction })
+                await interaction.reply({ content: `Risposte inserite correttamente!`, ephemeral: true })
+                res({ data, interaction })
             }
         }
 

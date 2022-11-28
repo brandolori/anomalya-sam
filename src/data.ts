@@ -1,4 +1,4 @@
-import { APIInteractionGuildMember, GuildMember, User } from "discord.js"
+import { GuildMember } from "discord.js"
 import { MongoClient } from "mongodb"
 
 const uri =
@@ -13,6 +13,7 @@ const races = ["nano", "elfo"] as const
 type Character = {
     name: string,
     race: typeof races,
+    strenght: number,
     inventory: EquipmentInInventory[]
 }
 
@@ -56,7 +57,7 @@ const removeCharacter = (name: string) => {
 }
 
 const createCharacter = (user: string, character: Character) => {
-    return characters.insertOne({ ...character, user, inventory: [] })
+    return characters.insertOne({ ...character, user })
 }
 
 const getEquipmentNames = async () => {

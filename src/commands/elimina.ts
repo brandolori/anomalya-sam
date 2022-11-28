@@ -21,7 +21,7 @@ const command: Command = {
         )
     },
     steps: [
-        { name: "name", type: "input", prompt: "Conferma il nome del pg" },
+        { name: "name", type: "input", prompt: ["Conferma il nome del pg"] },
     ],
     callback: async (interaction, data, originalInteraction) => {
         const originalName = originalInteraction.options.getString("personaggio")

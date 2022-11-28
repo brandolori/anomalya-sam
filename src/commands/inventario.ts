@@ -1,5 +1,5 @@
-import { chatInputApplicationCommandMention, GuildMember, SlashCommandBuilder } from "discord.js"
-import { getAllCharacters, getCharacterInventory, getExpandedCharacterInventory, userHasCharacter } from "../data.js"
+import { GuildMember, SlashCommandBuilder } from "discord.js"
+import { getAllCharacters, getExpandedCharacterInventory, userHasCharacter } from "../data.js"
 import { Command } from "../flow.js"
 
 const command: Command = {
@@ -32,7 +32,10 @@ const command: Command = {
         const equipment = await getExpandedCharacterInventory(characterName, "zaino")
         const equipmentString = equipment.map(el => `${el.amount} ${el.name}`).join("\n")
 
-        await interaction.reply({ content: `Inventario di ${characterName}:\n\n${equipmentString}`, ephemeral: true })
+        const totalWeight = equipment.reduce((prev, cur) => prev + cur.amount * cur.weight, 0)
+        const amount = equipment.length
+
+        await interaction.reply({ content: `L'inventario di ${characterName} contiene ${amount} oggetti, per un peso totale di ${totalWeight} lbs:\n\n${equipmentString}`, ephemeral: true })
     }
 }
 export default command
