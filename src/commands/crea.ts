@@ -7,7 +7,12 @@ const command: Command = {
         .setName("crea")
         .setDescription("Crea un nuovo personaggio"),
     steps: [
-        { name: "modal", type: "input", prompt: ["Nome del personaggio", "Forza del personaggio"] },
+        {
+            name: "modal", type: "input", prompt: [
+                "Nome del personaggio",
+                "Forza del personaggio",
+            ]
+        },
         { name: "race", type: "choice", options: races, prompt: "Scegli la razza del personaggio" },
     ],
     callback: async (interaction, data) => {

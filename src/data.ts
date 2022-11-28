@@ -14,6 +14,11 @@ type Character = {
     name: string,
     race: typeof races,
     strenght: number,
+    // dexterity: number,
+    // constitution: number,
+    // intelligence: number,
+    // winsdom: number,
+    // charisma: number,
     inventory: EquipmentInInventory[]
 }
 
