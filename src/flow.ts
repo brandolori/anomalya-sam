@@ -1,4 +1,4 @@
-import { ActionRowBuilder, AutocompleteInteraction, ChatInputCommandInteraction, Interaction, ModalBuilder, SelectMenuBuilder, SelectMenuInteraction, TextInputBuilder, TextInputStyle } from "discord.js"
+import { ActionRowBuilder, AutocompleteInteraction, ChatInputCommandInteraction, Interaction, ModalBuilder, ModalSubmitInteraction, SelectMenuBuilder, SelectMenuInteraction, TextInputBuilder, TextInputStyle } from "discord.js"
 import { v4 } from "uuid"
 import { client, registerCommands } from "./core.js"
 
@@ -102,7 +102,7 @@ const showInput = async (interaction: any, modalId: string, prompts: string[]) =
 
 const getInputResponse = (modalId: string, inputIds: string[]) => {
 
-    return new Promise<{ data: string[], interaction: Interaction }>((res, rej) => {
+    return new Promise<{ data: string[], interaction: ModalSubmitInteraction }>((res, rej) => {
 
         const modalSubmitAction = async (interaction: Interaction) => {
             if (interaction.isModalSubmit() && interaction.customId === modalId) {
