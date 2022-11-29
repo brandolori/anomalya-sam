@@ -1,5 +1,5 @@
-import { GuildMember, SlashCommandBuilder } from "discord.js"
-import { isAdmin } from "../common.js"
+import { SlashCommandBuilder } from "discord.js"
+import { isAdmin } from "../core.js"
 import { getUserCharacters } from "../data.js"
 import { Command } from "../flow.js"
 
@@ -8,8 +8,8 @@ const command: Command = {
         .setName("personaggi")
         .setDescription("Mostra tutti i tui personaggi"),
     callback: async (interaction) => {
-        const userCharacters = await getUserCharacters(interaction.member as GuildMember)
-        const calledByAdmin = isAdmin(interaction.member as GuildMember)
+        const userCharacters = await getUserCharacters(interaction.user.id)
+        const calledByAdmin = await isAdmin(interaction.user.id)
         const userCharactersString = userCharacters.map(el =>
             `Nome: ${el.name}\n${calledByAdmin ? `Proprietario: <@${el.user}>` : ""}`
         ).join("\n\n")

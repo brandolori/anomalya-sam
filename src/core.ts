@@ -1,7 +1,15 @@
-import { Client, GatewayIntentBits, GuildMember, REST, Routes, SlashCommandBuilder } from "discord.js"
-import { TOKEN, CLIENT_ID } from "./common.js"
+import { Client, GatewayIntentBits, REST, Routes, SlashCommandBuilder } from "discord.js"
+import { TOKEN, CLIENT_ID, GUILD_ID } from "./common.js"
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds] })
+const client = new Client({
+    intents: [
+        GatewayIntentBits.MessageContent,
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.GuildPresences,
+        GatewayIntentBits.GuildMembers,
+    ]
+})
 
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`)
@@ -23,4 +31,10 @@ const registerCommands = async (commands: SlashCommandBuilder[]) => {
     }
 }
 
-export { client, registerCommands }
+const isAdmin = async (userId: string) => {
+    const guild = await client.guilds.fetch(GUILD_ID)
+    const member = await guild.members.fetch(userId)
+    return member.roles.cache.has("1046812939774087218")
+}
+
+export { client, registerCommands, isAdmin }

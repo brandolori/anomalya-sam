@@ -1,6 +1,5 @@
-import { GuildMember } from "discord.js"
 import { MongoClient } from "mongodb"
-import { isAdmin } from "./common.js"
+import { isAdmin } from "./core.js"
 
 const uri =
     "mongodb://127.0.0.1:27017"
@@ -35,13 +34,12 @@ type EquipmentInInventory = {
     amount: number
 }
 
-const getUserCharacters = async (member: GuildMember) => {
+const getUserCharacters = async (userId: string) => {
 
-    if (isAdmin(member))
+    if (await isAdmin(userId))
         return getAllCharacters()
 
-
-    const response = await characters.find({ user: member.id }).toArray()
+    const response = await characters.find({ user: userId }).toArray()
 
     return response as unknown as Character[]
 }
@@ -50,8 +48,8 @@ const getCharacter = async (characterName: string) => {
     return (await characters.findOne({ name: characterName })) as unknown as Character
 }
 
-const userHasCharacter = async (member: GuildMember, character: string) => {
-    return !!(await getUserCharacters(member)).find(el => el.name == character)
+const userHasCharacter = async (userId: string, character: string) => {
+    return !!(await getUserCharacters(userId)).find(el => el.name == character)
 }
 
 const getAllCharacters = async () => {

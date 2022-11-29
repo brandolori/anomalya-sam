@@ -1,4 +1,4 @@
-import { GuildMember, SlashCommandBuilder } from "discord.js"
+import { SlashCommandBuilder } from "discord.js"
 import { getAllCharacters, getExpandedCharacterInventory, userHasCharacter } from "../data.js"
 import { Command } from "../flow.js"
 
@@ -24,7 +24,7 @@ const command: Command = {
     callback: async (interaction, _, originalInteraction) => {
         const characterName = originalInteraction.options.getString("personaggio")
 
-        if (!(await userHasCharacter(interaction.member as GuildMember, characterName))) {
+        if (!(await userHasCharacter(interaction.user.id, characterName))) {
             await interaction.reply({ content: `Errore: non esiste il personaggio '${characterName}`, ephemeral: true })
             return
         }

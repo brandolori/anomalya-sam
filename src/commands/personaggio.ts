@@ -1,7 +1,7 @@
-import { AttachmentBuilder, EmbedBuilder, Guild, GuildMember, SlashCommandBuilder } from "discord.js"
+import { AttachmentBuilder, EmbedBuilder, SlashCommandBuilder } from "discord.js"
+import { isAdmin } from "../core.js"
 import { getAllCharacters, getCharacter, userHasCharacter } from "../data.js"
 import { Command } from "../flow.js"
-import { isAdmin } from "../common.js"
 
 const command: Command = {
     builder: new SlashCommandBuilder()
@@ -25,14 +25,14 @@ const command: Command = {
     callback: async (interaction, _, originalInteraction) => {
         const characterName = originalInteraction.options.getString("personaggio")
 
-        if (!(await userHasCharacter(interaction.member as GuildMember, characterName))) {
+        if (!(await userHasCharacter(interaction.user.id, characterName))) {
             await interaction.reply({ content: `Errore: non esiste il personaggio '${characterName}`, ephemeral: true })
             return
         }
 
         const character = await getCharacter(characterName)
 
-        const calledByAdmin = isAdmin(interaction.member as GuildMember)
+        const calledByAdmin = await isAdmin(interaction.user.id)
 
         const profileImageFile = new AttachmentBuilder('./icon.png')
         const profileImageEmbed = new EmbedBuilder()

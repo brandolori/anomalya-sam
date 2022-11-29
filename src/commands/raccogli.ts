@@ -1,4 +1,4 @@
-import { GuildMember, SlashCommandBuilder } from "discord.js"
+import { SlashCommandBuilder } from "discord.js"
 import { addToInventory, checkEquipmentExists, getAllCharacters, getEquipmentNames, getUserCharacters, userHasCharacter } from "../data.js"
 import { Command } from "../flow.js"
 
@@ -26,7 +26,7 @@ const command: Command = {
 
         if (focusedOption.name === "personaggio") {
             const focusedValue = focusedOption.value
-            const choices = (await getUserCharacters(interaction.member as GuildMember)).slice(0, 24).map(el => el.name)
+            const choices = (await getUserCharacters(interaction.user.id)).slice(0, 24).map(el => el.name)
             const filtered = choices.filter(choice => choice.toLowerCase().startsWith(focusedValue.toLowerCase()))
             interaction.respond(
                 filtered.map(choice => ({ name: choice, value: choice })),
@@ -46,7 +46,7 @@ const command: Command = {
         const numeroOption = originalInteraction.options.getNumber("numero") ?? 1
         const numero = Math.max(numeroOption, 1)
 
-        if (!(await userHasCharacter(interaction.member as GuildMember, personaggio))) {
+        if (!(await userHasCharacter(interaction.user.id, personaggio))) {
             await interaction.reply({ content: `Errore: non esiste il personaggio '${personaggio}'`, ephemeral: true })
             return
         }

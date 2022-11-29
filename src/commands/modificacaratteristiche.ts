@@ -1,4 +1,4 @@
-import { GuildMember, SlashCommandBuilder } from "discord.js"
+import { SlashCommandBuilder } from "discord.js"
 import { updateCharacter, getUserCharacters, userHasCharacter } from "../data.js"
 import { Command } from "../flow.js"
 
@@ -37,7 +37,7 @@ const command: Command = {
                 .setChoices(...abilityChoices)),
     autocomplete: async (interaction) => {
         const focusedValue = interaction.options.getFocused()
-        const choices = (await getUserCharacters(interaction.member as GuildMember)).map(el => el.name)
+        const choices = (await getUserCharacters(interaction.user.id)).map(el => el.name)
         const filtered = choices.filter(choice => choice.toLowerCase().startsWith(focusedValue.toLowerCase()))
         interaction.respond(
             filtered.map(choice => ({ name: choice, value: choice })),
@@ -49,7 +49,7 @@ const command: Command = {
         const caratteristica = originalInteraction.options.getString("caratteristica")
         const punteggio = originalInteraction.options.getNumber("punteggio")
 
-        if (!(await userHasCharacter(interaction.member as GuildMember, characterName))) {
+        if (!(await userHasCharacter(interaction.user.id, characterName))) {
             await interaction.reply({ content: `Errore: non esiste il personaggio '${characterName}'`, ephemeral: true })
             return
         }
