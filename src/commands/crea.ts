@@ -29,7 +29,7 @@ const command: Command = {
 
         const nome = originalInteraction.options.getString("nome")
 
-        const character: Character = {
+        const character: Partial<Character> = {
             name: nome,
             race: data.race,
             strength: Number.parseInt(data.strength),

@@ -1,6 +1,6 @@
 import { AttachmentBuilder, EmbedBuilder, SlashCommandBuilder } from "discord.js"
 import { isAdmin } from "../core.js"
-import { getAllCharacters, getCharacter, userHasCharacter } from "../data.js"
+import { getAllCharacters, getCharacter, getUserCharacters, userHasCharacter } from "../data.js"
 import { Command } from "../flow.js"
 
 const command: Command = {
@@ -15,7 +15,7 @@ const command: Command = {
     autocomplete: async (interaction) => {
 
         const focusedValue = interaction.options.getFocused()
-        const choices = (await getAllCharacters()).map(el => el.name)
+        const choices = (await getUserCharacters(interaction.user.id)).map(el => el.name)
         const filtered = choices.filter(choice => choice.toLowerCase().startsWith(focusedValue.toLowerCase()))
         interaction.respond(
             filtered.map(choice => ({ name: choice, value: choice })),
@@ -33,11 +33,11 @@ const command: Command = {
         const character = await getCharacter(characterName)
 
         const calledByAdmin = await isAdmin(interaction.user.id)
-
-        const profileImageFile = new AttachmentBuilder('./icon.png')
+        const profileImageFile = new AttachmentBuilder(character.picture.buffer)
+            .setName("picture.png")
         const profileImageEmbed = new EmbedBuilder()
             .setTitle('Immagine del personaggio')
-            .setImage('attachment://icon.png')
+            .setImage('attachment://picture.jpg')
 
         await interaction.deferReply()
         await interaction.editReply({

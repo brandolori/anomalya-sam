@@ -176,4 +176,4 @@ const getChoiceResponse = (choiceId: string) => {
     })
 }
 
-export { registerFlows }
+export { registerFlows, requestChoice }

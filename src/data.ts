@@ -18,7 +18,8 @@ type Character = {
     winsdom: number,
     charisma: number,
     inventory: EquipmentInInventory[]
-    user: string
+    user: string,
+    picture: any
 }
 
 type Equipment = {
@@ -63,7 +64,7 @@ const removeCharacter = (name: string) => {
     return characters.deleteOne({ name })
 }
 
-const createCharacter = async (character: Character) => {
+const createCharacter = async (character: Partial<Character>) => {
 
     if ((await characters.countDocuments({ name: character.name })) > 0)
         throw new Error(`Personaggio '${character.name}' già esistente! Prova con un'altro nome`)

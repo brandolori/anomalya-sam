@@ -1,13 +1,17 @@
-import { Client, GatewayIntentBits, REST, Routes, SlashCommandBuilder } from "discord.js"
+import { Client, GatewayIntentBits, Partials, REST, Routes, SlashCommandBuilder } from "discord.js"
 import { TOKEN, CLIENT_ID, GUILD_ID } from "./common.js"
 
 const client = new Client({
+    partials: [
+        Partials.Channel,
+    ],
     intents: [
         GatewayIntentBits.MessageContent,
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.GuildPresences,
         GatewayIntentBits.GuildMembers,
+        GatewayIntentBits.DirectMessages,
     ]
 })
 
