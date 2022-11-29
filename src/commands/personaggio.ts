@@ -1,6 +1,6 @@
 import { AttachmentBuilder, EmbedBuilder, SlashCommandBuilder } from "discord.js"
 import { isAdmin } from "../core.js"
-import { getAllCharacters, getCharacter, getUserCharacters, userHasCharacter } from "../data.js"
+import { getCharacter, getUserCharacters, userHasCharacter } from "../data.js"
 import { Command } from "../flow.js"
 
 const command: Command = {
@@ -31,15 +31,23 @@ const command: Command = {
         }
 
         const character = await getCharacter(characterName)
-
         const calledByAdmin = await isAdmin(interaction.user.id)
-        const profileImageFile = new AttachmentBuilder(character.picture.buffer)
-            .setName("picture.png")
-        const profileImageEmbed = new EmbedBuilder()
-            .setTitle('Immagine del personaggio')
-            .setImage('attachment://picture.jpg')
 
-        await interaction.deferReply()
+        let files = []
+        let embeds = []
+
+        if (character.picture) {
+
+            const profileImageFile = new AttachmentBuilder(character.picture.buffer)
+                .setName("picture.jpg")
+            const profileImageEmbed = new EmbedBuilder()
+                .setTitle('Immagine del personaggio')
+                .setImage('attachment://picture.jpg')
+            files.push(profileImageFile)
+            embeds.push(profileImageEmbed)
+        }
+
+        await interaction.deferReply({ ephemeral: true })
         await interaction.editReply({
             content: `Nome: ${character.name}
 Razza: ${character.race}
@@ -50,8 +58,8 @@ INT: ${character.intelligence}
 WIS: ${character.winsdom}
 CHA: ${character.charisma}
 ${calledByAdmin ? `Proprietario: <@${character.user}>` : ""}`,
-            embeds: [profileImageEmbed],
-            files: [profileImageFile]
+            embeds,
+            files
         })
     }
 }

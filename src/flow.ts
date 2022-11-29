@@ -1,4 +1,4 @@
-import { ActionRowBuilder, AutocompleteInteraction, CacheType, ChatInputCommandInteraction, Interaction, ModalBuilder, SelectMenuBuilder, SlashCommandBuilder, TextInputBuilder, TextInputStyle } from "discord.js"
+import { ActionRowBuilder, AutocompleteInteraction, ChatInputCommandInteraction, Interaction, ModalBuilder, SelectMenuBuilder, SelectMenuInteraction, TextInputBuilder, TextInputStyle } from "discord.js"
 import { v4 } from "uuid"
 import { client, registerCommands } from "./core.js"
 
@@ -36,7 +36,7 @@ const registerFlows = (...commands: Command[]) => {
 
                     if (interaction.commandName === command.builder.name) {
 
-                        let rollingInteraction = interaction
+                        let rollingInteraction: any = interaction
                         for (const step of command.steps ?? []) {
 
                             if (step.type == "input") {
@@ -72,7 +72,6 @@ const requestInput = async (interaction, prompts: string[]) => {
 }
 
 const showInput = async (interaction: any, modalId: string, prompts: string[]) => {
-    console.log("show modal")
 
     const modal = new ModalBuilder()
         .setCustomId(modalId)
@@ -103,14 +102,12 @@ const showInput = async (interaction: any, modalId: string, prompts: string[]) =
 
 const getInputResponse = (modalId: string, inputIds: string[]) => {
 
-    return new Promise<any>((res, rej) => {
+    return new Promise<{ data: string[], interaction: Interaction }>((res, rej) => {
 
         const modalSubmitAction = async (interaction: Interaction) => {
             if (interaction.isModalSubmit() && interaction.customId === modalId) {
-                console.log("submit modal")
 
                 const data = inputIds.map(el => interaction.fields.getTextInputValue(el))
-                console.log("data:", data)
                 client.off("interactionCreate", modalSubmitAction)
                 await interaction.reply({ content: `Hai inserito: '${data.join("'\n'")}'`, ephemeral: true })
                 res({ data, interaction })
@@ -134,7 +131,6 @@ const requestChoice = (interaction, choices: string[], prompt: string) => {
 }
 
 const showChoice = async (interaction, choiceId: string, choices: string[], prompt: string) => {
-    console.log("show choice")
     const row = new ActionRowBuilder<SelectMenuBuilder>()
         .addComponents(
             new SelectMenuBuilder()
@@ -156,11 +152,10 @@ const showChoice = async (interaction, choiceId: string, choices: string[], prom
 
 const getChoiceResponse = (choiceId: string) => {
 
-    return new Promise<any>((res, rej) => {
+    return new Promise<{ data: string, interaction: SelectMenuInteraction }>((res, rej) => {
 
-        const choiceSubmitAction = async (interaction) => {
+        const choiceSubmitAction = async (interaction: Interaction) => {
             if (interaction.isSelectMenu() && interaction.customId === choiceId) {
-                console.log("submit choice")
                 const choice = interaction.values[0]
                 await interaction.update({ content: `Hai scelto: ${choice}`, components: [] })
                 client.off("interactionCreate", choiceSubmitAction)

@@ -10,10 +10,9 @@ import getta from './commands/getta.js'
 import modificacaratteristiche from './commands/modificacaratteristiche.js'
 import personaggio from './commands/personaggio.js'
 import { client } from './core.js'
-import { ChannelType, Events } from 'discord.js'
+import { ChannelType } from 'discord.js'
 import fetch from 'node-fetch'
 import sharp from "sharp"
-import * as fs from "fs"
 import { getUserCharacters, updateCharacter } from './data.js'
 
 registerFlows(
@@ -29,7 +28,7 @@ registerFlows(
     personaggio
 )
 
-client.on(Events.MessageCreate, async message => {
+client.on("messageCreate", async message => {
     if (message.channel.type != ChannelType.DM
         || message.attachments.size != 1
         || message.author.bot)
