@@ -28,6 +28,7 @@ registerFlows(
     personaggio
 )
 
+// caricamento immagine personaggio
 client.on("messageCreate", async message => {
     if (message.channel.type != ChannelType.DM
         || message.attachments.size != 1
@@ -35,6 +36,11 @@ client.on("messageCreate", async message => {
         return
 
     const characters = await getUserCharacters(message.author.id)
+
+    if (characters.length == 0) {
+        await message.reply({ content: `Errore! Non hai mai creato nessun personaggio. Inizia ora con /crea` })
+        return
+    }
 
     const { data: characterName, interaction } = await requestChoice(message, characters.map(el => el.name), "A quale personaggio aggiornare l'immagine?")
 
@@ -48,6 +54,6 @@ client.on("messageCreate", async message => {
 
     await updateCharacter(characterName, { picture: outputBuffer })
 
-    await interaction.followUp({ content: `L'immagine del personaggio è stata aggiornata con successo!`, ephemeral: true })
+    await interaction.followUp({ content: `L'immagine di ${characterName} è stata aggiornata con successo!` })
 })
 
