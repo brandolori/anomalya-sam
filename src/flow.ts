@@ -12,7 +12,7 @@ type Step = { name: string, } &
         |
     {
         type: "choice",
-        options: any,
+        options: string[],
         prompt: string
     })
 
@@ -112,7 +112,7 @@ const getInputResponse = (modalId: string, inputIds: string[]) => {
                 const data = inputIds.map(el => interaction.fields.getTextInputValue(el))
                 console.log("data:", data)
                 client.off("interactionCreate", modalSubmitAction)
-                await interaction.reply({ content: `Risposte inserite correttamente!`, ephemeral: true })
+                await interaction.reply({ content: `Hai inserito: '${data.join("'\n'")}'`, ephemeral: true })
                 res({ data, interaction })
             }
         }

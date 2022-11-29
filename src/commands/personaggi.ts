@@ -8,7 +8,16 @@ const command: Command = {
         .setDescription("Mostra tutti i tui personaggi"),
     callback: async (interaction) => {
         const userCharacters = await getUserCharacters(interaction.member as GuildMember)
-        const userCharactersString = userCharacters.map(el => `Nome: ${el.name}\nRazza: ${el.race}`).join("\n\n")
+        const userCharactersString = userCharacters.map(el =>
+            `Nome: ${el.name}
+Razza: ${el.race}
+STR: ${el.strength}
+DEX: ${el.dexterity}
+CON: ${el.constitution}
+INT: ${el.intelligence}
+WIS: ${el.winsdom}
+CHA: ${el.charisma}`
+        ).join("\n\n")
         interaction.reply({ content: `Trovati ${userCharacters.length} personaggi${userCharacters.length > 0 ? ":" : ""}\n\n${userCharactersString}`, ephemeral: true })
     }
 }

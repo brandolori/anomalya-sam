@@ -8,17 +8,15 @@ const database = client.db('test')
 const equipment = database.collection('equipment')
 const characters = database.collection('characters')
 
-const races = ["nano", "elfo"] as const
-
 type Character = {
     name: string,
-    race: typeof races,
-    strenght: number,
-    // dexterity: number,
-    // constitution: number,
-    // intelligence: number,
-    // winsdom: number,
-    // charisma: number,
+    race: string,
+    strength: number,
+    dexterity: number,
+    constitution: number,
+    intelligence: number,
+    winsdom: number,
+    charisma: number,
     inventory: EquipmentInInventory[]
 }
 
@@ -61,8 +59,17 @@ const removeCharacter = (name: string) => {
     return characters.deleteOne({ name })
 }
 
-const createCharacter = (user: string, character: Character) => {
+const createCharacter = async (user: string, character: Character) => {
+
+    if ((await characters.countDocuments({ name: character.name })) > 0)
+        throw new Error(`Personaggio '${character.name}' già esistente! Prova con un'altro nome`)
+
     return characters.insertOne({ ...character, user })
+}
+
+const updateCharacter = async (name: string, character: Partial<Character>) => {
+
+    return characters.updateOne({ name }, { $set: { ...character } })
 }
 
 const getEquipmentNames = async () => {
@@ -211,20 +218,32 @@ const getExpandedCharacterInventory = async (character: string, location: string
     return inventory.inventory.map((el, i) => ({ ...el, ...inventory.equipmentData[i] })) as (Equipment & EquipmentInInventory)[]
 }
 
+const Races = [
+    "Umano",
+    "Nano",
+    "Elfo",
+    "Dragonide",
+    "Tiefling",
+    "Gnomo",
+    "Mezzorco",
+    "Mezzelfo",
+]
+
 export {
-    races,
+    Character,
+    userHasCharacter,
     getUserCharacters,
+    getAllCharacters,
     removeCharacter,
     createCharacter,
-    Character,
+    updateCharacter,
     getEquipmentNames,
     getEquipmentData,
-    getAllCharacters,
     addToInventory,
     getCharacterInventory,
     checkCharacterExists,
     checkEquipmentExists,
-    userHasCharacter,
     removeFromInventory,
-    getExpandedCharacterInventory
+    getExpandedCharacterInventory,
+    Races,
 }

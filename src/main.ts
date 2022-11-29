@@ -7,6 +7,7 @@ import oggetti from './commands/oggetti.js'
 import raccogli from './commands/raccogli.js'
 import tira from './commands/tira.js'
 import getta from './commands/getta.js'
+import modificacaratteristiche from './commands/modificacaratteristiche.js'
 
 registerFlows(
     crea,
@@ -16,5 +17,6 @@ registerFlows(
     raccogli,
     tira,
     getta,
-    inventario
+    inventario,
+    modificacaratteristiche
 )

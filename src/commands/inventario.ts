@@ -33,7 +33,7 @@ const command: Command = {
         const equipmentString = equipment.map(el => `${el.amount} ${el.name}`).join("\n")
 
         const totalWeight = equipment.reduce((prev, cur) => prev + cur.amount * cur.weight, 0)
-        const amount = equipment.length
+        const amount = equipment.reduce((prev, cur) => prev + cur.amount, 0)
 
         await interaction.reply({ content: `L'inventario di ${characterName} contiene ${amount} oggetti, per un peso totale di ${totalWeight} lbs:\n\n${equipmentString}`, ephemeral: true })
     }
