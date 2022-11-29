@@ -38,10 +38,11 @@ const command: Command = {
             intelligence: Number.parseInt(data.intelligence),
             winsdom: Number.parseInt(data.winsdom),
             charisma: Number.parseInt(data.charisma),
-            inventory: []
+            inventory: [],
+            user: interaction.user.id
         }
         try {
-            await createCharacter(interaction.user.id, character)
+            await createCharacter(character)
             interaction.followUp({ content: `${character.name} creato correttamente!`, ephemeral: true })
         } catch (e) {
             interaction.followUp({ content: `Errore: ${e.message}!`, ephemeral: true })

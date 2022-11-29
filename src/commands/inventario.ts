@@ -8,7 +8,7 @@ const command: Command = {
         .setDescription("Visualizza l'inventario di un personaggio")
         .addStringOption(option =>
             option.setName("personaggio")
-                .setDescription("Il personaggio a cui dare l'oggetto")
+                .setDescription("Il personaggio di cui visualizzare l'inventario")
                 .setAutocomplete(true)
                 .setRequired(true)),
     autocomplete: async (interaction) => {

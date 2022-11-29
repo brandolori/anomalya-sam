@@ -1,6 +1,6 @@
 import { ActionRowBuilder, AutocompleteInteraction, CacheType, ChatInputCommandInteraction, Interaction, ModalBuilder, SelectMenuBuilder, SlashCommandBuilder, TextInputBuilder, TextInputStyle } from "discord.js"
 import { v4 } from "uuid"
-import { client, registerCommands } from "./mud.js"
+import { client, registerCommands } from "./core.js"
 
 const timeout = 120_000
 

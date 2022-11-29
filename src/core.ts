@@ -1,5 +1,5 @@
-import { Client, GatewayIntentBits, REST, Routes, SlashCommandBuilder } from "discord.js"
-import { TOKEN, CLIENT_ID } from "./constants.js"
+import { Client, GatewayIntentBits, GuildMember, REST, Routes, SlashCommandBuilder } from "discord.js"
+import { TOKEN, CLIENT_ID } from "./common.js"
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] })
 

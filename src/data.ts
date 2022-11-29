@@ -1,5 +1,6 @@
 import { GuildMember } from "discord.js"
 import { MongoClient } from "mongodb"
+import { isAdmin } from "./common.js"
 
 const uri =
     "mongodb://127.0.0.1:27017"
@@ -18,6 +19,7 @@ type Character = {
     winsdom: number,
     charisma: number,
     inventory: EquipmentInInventory[]
+    user: string
 }
 
 type Equipment = {
@@ -35,13 +37,17 @@ type EquipmentInInventory = {
 
 const getUserCharacters = async (member: GuildMember) => {
 
-    if (member.roles.cache.has("1046812939774087218"))
+    if (isAdmin(member))
         return getAllCharacters()
 
 
     const response = await characters.find({ user: member.id }).toArray()
 
     return response as unknown as Character[]
+}
+
+const getCharacter = async (characterName: string) => {
+    return (await characters.findOne({ name: characterName })) as unknown as Character
 }
 
 const userHasCharacter = async (member: GuildMember, character: string) => {
@@ -59,12 +65,12 @@ const removeCharacter = (name: string) => {
     return characters.deleteOne({ name })
 }
 
-const createCharacter = async (user: string, character: Character) => {
+const createCharacter = async (character: Character) => {
 
     if ((await characters.countDocuments({ name: character.name })) > 0)
         throw new Error(`Personaggio '${character.name}' già esistente! Prova con un'altro nome`)
 
-    return characters.insertOne({ ...character, user })
+    return characters.insertOne({ ...character })
 }
 
 const updateCharacter = async (name: string, character: Partial<Character>) => {
@@ -234,6 +240,7 @@ export {
     userHasCharacter,
     getUserCharacters,
     getAllCharacters,
+    getCharacter,
     removeCharacter,
     createCharacter,
     updateCharacter,
