@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "discord.js"
-import { getAllCharacters, getExpandedCharacterInventory, userHasCharacter } from "../data.js"
+import { getAllCharacters, getExpandedCharacterInventory, standardCharacterAutocomplete, userHasCharacter } from "../data.js"
 import { Command } from "../flow.js"
 
 const command: Command = {
@@ -12,14 +12,8 @@ const command: Command = {
                 .setAutocomplete(true)
                 .setRequired(true)),
     autocomplete: async (interaction) => {
-
         const focusedValue = interaction.options.getFocused()
-        const choices = (await getAllCharacters()).map(el => el.name)
-        const filtered = choices.filter(choice => choice.toLowerCase().startsWith(focusedValue.toLowerCase()))
-        await interaction.respond(
-            filtered.map(choice => ({ name: choice, value: choice })),
-        )
-
+        await standardCharacterAutocomplete(focusedValue, interaction)
     },
     callback: async (interaction, _, originalInteraction) => {
         const characterName = originalInteraction.options.getString("personaggio")

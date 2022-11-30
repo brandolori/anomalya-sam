@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "discord.js"
-import { addToInventory, checkEquipmentExists, equipmentIndex, getAllCharacters, getEquipmentNames, getUserCharacters, userHasCharacter } from "../data.js"
+import { addToInventory, checkEquipmentExists, equipmentIndex, getAllCharacters, getEquipmentNames, getUserCharacters, standardCharacterAutocomplete, userHasCharacter } from "../data.js"
 import { Command } from "../flow.js"
 
 const command: Command = {
@@ -26,11 +26,7 @@ const command: Command = {
 
         if (focusedOption.name === "personaggio") {
             const focusedValue = focusedOption.value
-            const choices = (await getUserCharacters(interaction.user.id)).slice(0, 24).map(el => el.name)
-            const filtered = choices.filter(choice => choice.toLowerCase().startsWith(focusedValue.toLowerCase()))
-            await interaction.respond(
-                filtered.map(choice => ({ name: choice, value: choice })),
-            )
+            await standardCharacterAutocomplete(focusedValue, interaction)
         } else if (focusedOption.name === "oggetto") {
             const focusedValue = focusedOption.value
             const choices = (await getEquipmentNames()).slice(0, 24)

@@ -253,6 +253,16 @@ const Races = [
     "Mezzelfo",
 ]
 
+const standardCharacterAutocomplete = async (inputValue: string, interaction) => {
+    const choices = (await getUserCharacters(interaction.user.id)).map(el => el.name)
+    const filtered = choices.filter(choice => choice.toLowerCase().startsWith(inputValue.toLowerCase()))
+    try {
+        await interaction.respond(
+            filtered.map(choice => ({ name: choice, value: choice })),
+        )
+    } catch (e) { }
+}
+
 export {
     Character,
     userHasCharacter,
@@ -273,5 +283,6 @@ export {
     getExpandedCharacterInventory,
     Races,
     Money,
-    getCharacterWallet
+    getCharacterWallet,
+    standardCharacterAutocomplete
 }
