@@ -21,6 +21,8 @@ client.on('ready', () => {
 
 client.login(TOKEN)
 
+client.setMaxListeners(0)
+
 const registerCommands = async (commands: SlashCommandBuilder[]) => {
 
     const commandList = commands.map(el => el.toJSON())

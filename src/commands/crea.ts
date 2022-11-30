@@ -43,7 +43,7 @@ const command: Command = {
         }
         try {
             await createCharacter(character)
-            interaction.followUp({ content: `${character.name} creato correttamente!`, ephemeral: true })
+            interaction.followUp({ content: `${character.name} creato correttamente!\n**Lo sai?** puoi inviarmi un'immagine in chat privata per aggiungerla come immagine di profilo!`, ephemeral: true })
         } catch (e) {
             interaction.followUp({ content: `Errore: ${e.message}!`, ephemeral: true })
         }

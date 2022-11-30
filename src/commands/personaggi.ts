@@ -11,7 +11,7 @@ const command: Command = {
         const userCharacters = await getUserCharacters(interaction.user.id)
         const calledByAdmin = await isAdmin(interaction.user.id)
         const userCharactersString = userCharacters.map(el =>
-            `Nome: ${el.name}\n${calledByAdmin ? `Proprietario: <@${el.user}>` : ""}`
+            `Nome: ${el.name}${calledByAdmin ? `\nProprietario: <@${el.user}>` : ""}`
         ).join("\n\n")
         interaction.reply({ content: `Trovati ${userCharacters.length} personaggi${userCharacters.length > 0 ? ":" : ""}\n\n${userCharactersString}`, ephemeral: true })
     }

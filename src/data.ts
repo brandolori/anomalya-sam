@@ -35,29 +35,29 @@ type EquipmentInInventory = {
     amount: number
 }
 
-const getUserCharacters = async (userId: string) => {
+type LightCharacter = { name: string, user: string }
 
+const getUserCharacters = async (userId: string) => {
     if (await isAdmin(userId))
         return getAllCharacters()
+    const response = await characters.find({ user: userId }, { projection: { _id: false, name: true, user: true } }).toArray()
 
-    const response = await characters.find({ user: userId }).toArray()
+    return response as unknown as LightCharacter[]
+}
 
-    return response as unknown as Character[]
+const getAllCharacters = async () => {
+
+    const response = await characters.find({}, { projection: { _id: false, name: true, user: true } }).toArray()
+
+    return response as unknown as LightCharacter[]
 }
 
 const getCharacter = async (characterName: string) => {
     return (await characters.findOne({ name: characterName })) as unknown as Character
 }
 
-const userHasCharacter = async (userId: string, character: string) => {
-    return !!(await getUserCharacters(userId)).find(el => el.name == character)
-}
-
-const getAllCharacters = async () => {
-
-    const response = await characters.find().toArray()
-
-    return response as unknown as Character[]
+const userHasCharacter = async (userId: string, characterName: string) => {
+    return (await characters.countDocuments({ name: characterName, user: userId })) > 0
 }
 
 const removeCharacter = (name: string) => {
