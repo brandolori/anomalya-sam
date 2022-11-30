@@ -16,10 +16,13 @@ const command: Command = {
         await standardCharacterAutocomplete(focusedValue, interaction)
     },
     callback: async (interaction, _, originalInteraction) => {
+
+        await interaction.deferReply({ ephemeral: true })
+
         const characterName = originalInteraction.options.getString("personaggio")
 
         if (!(await userHasCharacter(interaction.user.id, characterName))) {
-            await interaction.reply({ content: `Errore: non esiste il personaggio '${characterName}`, ephemeral: true })
+            await interaction.editReply({ content: `Errore: non esiste il personaggio '${characterName}` })
             return
         }
 
@@ -29,7 +32,7 @@ const command: Command = {
         const totalWeight = equipment.reduce((prev, cur) => prev + cur.amount * cur.weight, 0)
         const amount = equipment.reduce((prev, cur) => prev + cur.amount, 0)
 
-        await interaction.reply({ content: `L'inventario di ${characterName} contiene ${amount} oggetti, per un peso totale di ${totalWeight} lbs:\n\n${equipmentString}`, ephemeral: true })
+        await interaction.editReply({ content: `L'inventario di ${characterName} contiene ${amount} oggetti, per un peso totale di ${totalWeight} lbs:\n\n${equipmentString}` })
     }
 }
 export default command

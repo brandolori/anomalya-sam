@@ -19,7 +19,9 @@ const command: Command = {
                     { name: "svantaggio", value: "disadvantage" }
                 )
         ),
-    callback: (interaction) => {
+    callback: async (interaction) => {
+
+        await interaction.deferReply({ ephemeral: true })
 
         const dice = interaction.options.getString("dadi")
         const adv = interaction.options.getString("vantaggio")
@@ -58,7 +60,7 @@ const command: Command = {
                 }
             }
         })
-        interaction.reply(`Hai tirato ${cleanedDice}\nComponenti: ${totalString}\nRisultato: ${total}`)
+        interaction.editReply(`Hai tirato ${cleanedDice}\nComponenti: ${totalString}\nRisultato: ${total}`)
     }
 }
 export default command

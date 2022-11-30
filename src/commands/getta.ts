@@ -28,37 +28,41 @@ const command: Command = {
             const focusedValue = focusedOption.value
             await standardCharacterAutocomplete(focusedValue, interaction)
         } else if (focusedOption.name === "oggetto") {
-            const focusedValue = focusedOption.value
-            const personaggio = interaction.options.getString("personaggio")
-            const choices = (await getExpandedCharacterInventory(personaggio, "zaino")).slice(0, 24).map(el => el.name)
-            const filtered = choices.filter(choice => choice.toLowerCase().startsWith(focusedValue.toLowerCase()))
-            await interaction.respond(
-                filtered.map(choice => ({ name: choice, value: choice })),
-            )
+            try {
+                const focusedValue = focusedOption.value
+                const personaggio = interaction.options.getString("personaggio")
+                const choices = (await getExpandedCharacterInventory(personaggio, "zaino")).slice(0, 24).map(el => el.name)
+                const filtered = choices.filter(choice => choice.toLowerCase().startsWith(focusedValue.toLowerCase()))
+                await interaction.respond(
+                    filtered.map(choice => ({ name: choice, value: choice })),
+                )
+            } catch (e) { }
         }
     },
     callback: async (interaction, _, originalInteraction) => {
+
+        await interaction.deferReply({ ephemeral: true })
+
         const equipmentName = originalInteraction.options.getString("oggetto")
         const personaggio = originalInteraction.options.getString("personaggio")
         const numeroOption = originalInteraction.options.getNumber("numero") ?? 1
         const numero = Math.max(numeroOption, 1)
 
         if (!(await userHasCharacter(interaction.user.id, personaggio))) {
-            await interaction.reply({ content: `Errore: non esiste il personaggio '${personaggio}'`, ephemeral: true })
+            await interaction.editReply({ content: `Errore: non esiste il personaggio '${personaggio}'` })
             return
         }
 
         if (!(await checkEquipmentExists(equipmentName))) {
-            await interaction.reply({ content: `Errore: non esiste l'oggetto '${equipmentName}'`, ephemeral: true })
+            await interaction.editReply({ content: `Errore: non esiste l'oggetto '${equipmentName}'` })
             return
         }
         try {
-
             await removeFromInventory(personaggio, "zaino", equipmentName, numero)
 
-            await interaction.reply({ content: `Operazione completata con successo!`, ephemeral: true })
+            await interaction.editReply({ content: `Operazione completata con successo!` })
         } catch (e) {
-            await interaction.reply({ content: `Errore: ${e.message}`, ephemeral: true })
+            await interaction.editReply({ content: `Errore: ${e.message}` })
         }
     }
 }

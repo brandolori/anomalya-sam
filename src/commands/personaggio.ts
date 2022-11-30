@@ -17,10 +17,12 @@ const command: Command = {
         await standardCharacterAutocomplete(focusedValue, interaction)
     },
     callback: async (interaction, _, originalInteraction) => {
+        await interaction.deferReply({ ephemeral: true })
+
         const characterName = originalInteraction.options.getString("personaggio")
 
         if (!(await userHasCharacter(interaction.user.id, characterName))) {
-            await interaction.reply({ content: `Errore: non esiste il personaggio '${characterName}`, ephemeral: true })
+            await interaction.editReply({ content: `Errore: non esiste il personaggio '${characterName}` })
             return
         }
 
@@ -41,7 +43,6 @@ const command: Command = {
             embeds.push(profileImageEmbed)
         }
 
-        await interaction.deferReply({ ephemeral: true })
         await interaction.editReply({
             content: `Nome: ${character.name}
 Razza: ${character.race}

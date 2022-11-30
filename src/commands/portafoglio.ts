@@ -17,10 +17,12 @@ const command: Command = {
     },
     callback: async (interaction, _, originalInteraction) => {
 
+        await interaction.deferReply({ ephemeral: true })
+
         const characterName = originalInteraction.options.getString("personaggio")
 
         if (!(await userHasCharacter(interaction.user.id, characterName))) {
-            await interaction.reply({ content: `Errore: non esiste il personaggio '${characterName}'`, ephemeral: true })
+            await interaction.editReply({ content: `Errore: non esiste il personaggio '${characterName}'` })
             return
         }
 
@@ -29,7 +31,7 @@ const command: Command = {
         const gp = wallet.find(el => el.equipment == "gp")?.amount ?? 0
         const sp = wallet.find(el => el.equipment == "sp")?.amount ?? 0
         const bp = wallet.find(el => el.equipment == "bp")?.amount ?? 0
-        await interaction.reply({ content: `Nel portafoglio di ${characterName} ci sono ${gp} monete d'oro, ${sp} monete d'argento, ${bp} monete di bronzo`, ephemeral: true })
+        await interaction.editReply({ content: `Nel portafoglio di ${characterName} ci sono ${gp} monete d'oro, ${sp} monete d'argento, ${bp} monete di bronzo` })
     }
 }
 export default command

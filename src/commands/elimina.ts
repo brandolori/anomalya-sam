@@ -27,7 +27,6 @@ const command: Command = {
             await interaction.followUp({ content: `Eliminazione non andata a buon fine: nessun personaggio trovato con questo nome`, ephemeral: true })
             return
         }
-
         if (originalName == confirmName) {
             await removeCharacter(originalName)
 

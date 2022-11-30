@@ -33,7 +33,6 @@ const registerFlows = (...commands: Command[]) => {
             try {
                 let responses = {}
                 if (interaction.isChatInputCommand()) {
-
                     if (interaction.commandName === command.builder.name) {
 
                         let rollingInteraction: any = interaction
@@ -92,8 +91,6 @@ const showInput = async (interaction: any, modalId: string, prompts: string[]) =
 
         return inputId
     })
-
-
 
     await interaction.showModal(modal)
 

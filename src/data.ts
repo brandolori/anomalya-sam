@@ -63,12 +63,11 @@ const userHasCharacter = async (userId: string, characterName: string) => {
         return (await characters.countDocuments({ name: characterName, user: userId })) > 0
 }
 
-const removeCharacter = (name: string) => {
+const removeCharacter = async (name: string) => {
     return characters.deleteOne({ name })
 }
 
 const createCharacter = async (character: Partial<Character>) => {
-
     if ((await characters.countDocuments({ name: character.name })) > 0)
         throw new Error(`Personaggio '${character.name}' già esistente! Prova con un'altro nome`)
 
@@ -76,19 +75,16 @@ const createCharacter = async (character: Partial<Character>) => {
 }
 
 const updateCharacter = async (name: string, character: Partial<Character>) => {
-
     return characters.updateOne({ name }, { $set: { ...character } })
 }
 
 const getEquipmentNames = async () => {
-
     const response = await equipment.find({}, { projection: { _id: false, name: true } }).map(el => el.name).toArray()
 
     return response as string[]
 }
 
 const getEquipmentData = async (name: string) => {
-
     const response = await equipment.findOne({ name: name }, { projection: { _id: false, name: true, cost: true, weight: true } })
 
     return response as unknown as Equipment
@@ -100,7 +96,6 @@ const equipmentIndex = async (equipmentName: string) => {
 }
 
 const addToInventory = async (characterName: string, location: string, equipmentIndex: string, amount: number) => {
-
     const currentAmount = (await getCharacterInventory(characterName, location))
         ?.find(el => el.equipment == equipmentIndex)
         ?.amount ?? 0
@@ -136,7 +131,6 @@ const addToInventory = async (characterName: string, location: string, equipment
 }
 
 const removeFromInventory = async (characterName: string, location: string, equipmentName: string, amountToRemove: number) => {
-
     const { index } = await equipment.findOne({ name: equipmentName })
 
     const currentAmount = (await getCharacterInventory(characterName, location))
@@ -196,7 +190,6 @@ const getCharacterWallet = async (character: string, location: string) => {
 }
 
 const getExpandedCharacterInventory = async (character: string, location: string) => {
-
     // query: mostra nell'inventario solo oggetti della location passata e ignorando gp, sp e bp
     const aggregation = await characters.aggregate([
         {

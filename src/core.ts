@@ -38,7 +38,6 @@ const registerCommands = async (commands: SlashCommandBuilder[]) => {
 }
 
 const isAdmin = async (userId: string) => {
-    
     const guild = await client.guilds.fetch(GUILD_ID)
     const member = await guild.members.fetch(userId)
     return member.roles.cache.has("1046812939774087218")

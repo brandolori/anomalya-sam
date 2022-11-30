@@ -32,17 +32,19 @@ const command: Command = {
     },
     callback: async (interaction, _, originalInteraction) => {
 
+        await interaction.deferReply({ ephemeral: true })
+
         const characterName = originalInteraction.options.getString("personaggio")
         const moneta = originalInteraction.options.getString("moneta")
         const importo = originalInteraction.options.getNumber("importo")
 
         if (!(await userHasCharacter(interaction.user.id, characterName))) {
-            await interaction.reply({ content: `Errore: non esiste il personaggio '${characterName}'`, ephemeral: true })
+            await interaction.editReply({ content: `Errore: non esiste il personaggio '${characterName}'` })
             return
         }
 
         await addToInventory(characterName, "zaino", moneta, importo)
-        interaction.reply({ content: `Monete aggiunte nel portafoglio di ${characterName}!`, ephemeral: true })
+        await interaction.editReply({ content: `Monete aggiunte nel portafoglio di ${characterName}!` })
 
     }
 }
