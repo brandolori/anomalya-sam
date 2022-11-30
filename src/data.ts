@@ -57,7 +57,10 @@ const getCharacter = async (characterName: string) => {
 }
 
 const userHasCharacter = async (userId: string, characterName: string) => {
-    return (await characters.countDocuments({ name: characterName, user: userId })) > 0
+    if (await isAdmin(userId))
+        return (await characters.countDocuments({ name: characterName })) > 0
+    else
+        return (await characters.countDocuments({ name: characterName, user: userId })) > 0
 }
 
 const removeCharacter = (name: string) => {
@@ -91,22 +94,25 @@ const getEquipmentData = async (name: string) => {
     return response as unknown as Equipment
 }
 
-const addToInventory = async (characterName: string, location: string, equipmentName: string, amount: number) => {
-
+const equipmentIndex = async (equipmentName: string) => {
     const { index } = await equipment.findOne({ name: equipmentName })
+    return index
+}
+
+const addToInventory = async (characterName: string, location: string, equipmentIndex: string, amount: number) => {
 
     const currentAmount = (await getCharacterInventory(characterName, location))
-        ?.find(el => el.equipment == index)
+        ?.find(el => el.equipment == equipmentIndex)
         ?.amount ?? 0
 
     if (currentAmount > 0) {
-        return characters.updateOne({ name: characterName, "inventory.equipment": index },
+        return characters.updateOne({ name: characterName, "inventory.equipment": equipmentIndex },
             {
                 $set:
                 {
                     "inventory.$":
                     {
-                        equipment: index,
+                        equipment: equipmentIndex,
                         location,
                         amount: currentAmount + amount
                     }
@@ -120,7 +126,7 @@ const addToInventory = async (characterName: string, location: string, equipment
                 {
                     inventory:
                     {
-                        equipment: index,
+                        equipment: equipmentIndex,
                         location,
                         amount: amount
                     }
@@ -177,13 +183,21 @@ const checkEquipmentExists = async (name: string) => {
     return (await equipment.countDocuments({ name })) > 0
 }
 
+const Money = ["gp", "sp", "bp"]
+
 const getCharacterInventory = async (character: string, location: string) => {
     const response = (await characters.findOne({ name: character, "inventory.location": location }, { projection: { inventory: true } })) as unknown as Character
-    return response?.inventory?.filter(el => el.location == location) ?? []
+    return response?.inventory?.filter(el => el.location == location).filter(el => !Money.includes(el.equipment)) ?? []
+}
+
+const getCharacterWallet = async (character: string, location: string) => {
+    const response = (await characters.findOne({ name: character, "inventory.location": location }, { projection: { inventory: true } })) as unknown as Character
+    return response?.inventory?.filter(el => el.location == location).filter(el => Money.includes(el.equipment)) ?? []
 }
 
 const getExpandedCharacterInventory = async (character: string, location: string) => {
 
+    // query: mostra nell'inventario solo oggetti della location passata e ignorando gp, sp e bp
     const aggregation = await characters.aggregate([
         {
             $match: {
@@ -196,7 +210,12 @@ const getExpandedCharacterInventory = async (character: string, location: string
                     $filter: {
                         input: "$inventory",
                         as: "inventory",
-                        cond: { $eq: ["$$inventory.location", location] }
+                        cond: {
+                            $and: [
+                                { $eq: ["$$inventory.location", location] },
+                                ...Money.map(el => ({ $ne: ["$$inventory.equipment", el] }))
+                            ]
+                        }
                     }
                 }
             }
@@ -245,6 +264,7 @@ export {
     updateCharacter,
     getEquipmentNames,
     getEquipmentData,
+    equipmentIndex,
     addToInventory,
     getCharacterInventory,
     checkCharacterExists,
@@ -252,4 +272,6 @@ export {
     removeFromInventory,
     getExpandedCharacterInventory,
     Races,
+    Money,
+    getCharacterWallet
 }

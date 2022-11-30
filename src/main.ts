@@ -9,11 +9,13 @@ import tira from './commands/tira.js'
 import getta from './commands/getta.js'
 import modificacaratteristiche from './commands/modificacaratteristiche.js'
 import personaggio from './commands/personaggio.js'
+import guadagna from './commands/guadagna.js'
 import { client } from './core.js'
 import { ChannelType } from 'discord.js'
 import fetch from 'node-fetch'
 import sharp from "sharp"
 import { getUserCharacters, updateCharacter } from './data.js'
+import portafoglio from './commands/portafoglio.js'
 
 registerFlows(
     crea,
@@ -25,7 +27,9 @@ registerFlows(
     getta,
     inventario,
     modificacaratteristiche,
-    personaggio
+    personaggio,
+    guadagna,
+    portafoglio
 )
 
 // setInterval(() => {

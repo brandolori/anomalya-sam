@@ -16,7 +16,7 @@ const command: Command = {
         const focusedValue = interaction.options.getFocused()
         const choices = (await getEquipmentNames()).slice(0, 24)
         const filtered = choices.filter(choice => choice.toLowerCase().startsWith(focusedValue.toLowerCase()))
-        interaction.respond(
+        await interaction.respond(
             filtered.map(choice => ({ name: choice, value: choice })),
         )
     },

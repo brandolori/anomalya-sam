@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "discord.js"
-import { addToInventory, checkEquipmentExists, getAllCharacters, getEquipmentNames, getUserCharacters, userHasCharacter } from "../data.js"
+import { addToInventory, checkEquipmentExists, equipmentIndex, getAllCharacters, getEquipmentNames, getUserCharacters, userHasCharacter } from "../data.js"
 import { Command } from "../flow.js"
 
 const command: Command = {
@@ -28,14 +28,14 @@ const command: Command = {
             const focusedValue = focusedOption.value
             const choices = (await getUserCharacters(interaction.user.id)).slice(0, 24).map(el => el.name)
             const filtered = choices.filter(choice => choice.toLowerCase().startsWith(focusedValue.toLowerCase()))
-            interaction.respond(
+            await interaction.respond(
                 filtered.map(choice => ({ name: choice, value: choice })),
             )
         } else if (focusedOption.name === "oggetto") {
             const focusedValue = focusedOption.value
             const choices = (await getEquipmentNames()).slice(0, 24)
             const filtered = choices.filter(choice => choice.toLowerCase().startsWith(focusedValue.toLowerCase()))
-            interaction.respond(
+            await interaction.respond(
                 filtered.map(choice => ({ name: choice, value: choice })),
             )
         }
@@ -56,7 +56,9 @@ const command: Command = {
             return
         }
 
-        await addToInventory(personaggio, "zaino", oggetto, numero)
+        const eqIndex = await equipmentIndex(oggetto)
+
+        await addToInventory(personaggio, "zaino", eqIndex, numero)
 
         await interaction.reply({ content: `Operazione completata con successo!`, ephemeral: true })
     }
