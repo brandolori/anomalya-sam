@@ -16,6 +16,7 @@ import fetch from 'node-fetch'
 import sharp from "sharp"
 import { getUserCharacters, updateCharacter } from './data.js'
 import portafoglio from './commands/portafoglio.js'
+import giocatore from './commands/giocatore.js'
 
 registerFlows(
     crea,
@@ -29,7 +30,8 @@ registerFlows(
     modificacaratteristiche,
     personaggio,
     guadagna,
-    portafoglio
+    portafoglio,
+    giocatore
 )
 
 // setInterval(() => {

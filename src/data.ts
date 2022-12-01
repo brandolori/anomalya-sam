@@ -38,15 +38,12 @@ type EquipmentInInventory = {
 type LightCharacter = { name: string, user: string }
 
 const getUserCharacters = async (userId: string) => {
-    if (await isAdmin(userId))
-        return getAllCharacters()
     const response = await characters.find({ user: userId }, { projection: { _id: false, name: true, user: true } }).toArray()
 
     return response as unknown as LightCharacter[]
 }
 
 const getAllCharacters = async () => {
-
     const response = await characters.find({}, { projection: { _id: false, name: true, user: true } }).toArray()
 
     return response as unknown as LightCharacter[]
@@ -247,7 +244,12 @@ const Races = [
 ]
 
 const standardCharacterAutocomplete = async (inputValue: string, interaction) => {
-    const choices = (await getUserCharacters(interaction.user.id)).map(el => el.name)
+
+    const characters = isAdmin(interaction.user.id)
+        ? await getAllCharacters()
+        : await getUserCharacters(interaction.user.id)
+
+    const choices = characters.map(el => el.name)
     const filtered = choices.filter(choice => choice.toLowerCase().startsWith(inputValue.toLowerCase()))
     try {
         await interaction.respond(
