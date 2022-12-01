@@ -1,4 +1,5 @@
 import { SlashCommandBuilder } from "discord.js"
+import { isAdmin } from "../core.js"
 import { getUserCharacters } from "../data.js"
 import { Command } from "../flow.js"
 
@@ -12,6 +13,11 @@ const command: Command = {
                 .setRequired(true)),
     callback: async (interaction, _, originalInteraction) => {
         await interaction.deferReply({ ephemeral: true })
+
+        if (!(await isAdmin(interaction.user.id))) {
+            await interaction.editReply({ content: `Oooops! Questo comando è solo per i DM` })
+            return
+        }
 
         const user = originalInteraction.options.getUser("giocatore")
 

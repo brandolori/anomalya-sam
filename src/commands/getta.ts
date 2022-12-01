@@ -32,7 +32,7 @@ const command: Command = {
                 const focusedValue = focusedOption.value
                 const personaggio = interaction.options.getString("personaggio")
                 const choices = (await getExpandedCharacterInventory(personaggio, "zaino")).slice(0, 24).map(el => el.name)
-                const filtered = choices.filter(choice => choice.toLowerCase().startsWith(focusedValue.toLowerCase()))
+                const filtered = choices.filter(choice => choice.toLowerCase().includes(focusedValue.toLowerCase()))
                 await interaction.respond(
                     filtered.map(choice => ({ name: choice, value: choice })),
                 )

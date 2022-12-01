@@ -1,3 +1,4 @@
+import { AutocompleteInteraction, CacheType } from "discord.js"
 import { MongoClient } from "mongodb"
 import { isAdmin } from "./core.js"
 
@@ -243,14 +244,14 @@ const Races = [
     "Mezzelfo",
 ]
 
-const standardCharacterAutocomplete = async (inputValue: string, interaction) => {
+const standardCharacterAutocomplete = async (inputValue: string, interaction: AutocompleteInteraction) => {
 
-    const characters = isAdmin(interaction.user.id)
+    const characters = await isAdmin(interaction.user.id)
         ? await getAllCharacters()
         : await getUserCharacters(interaction.user.id)
 
     const choices = characters.map(el => el.name)
-    const filtered = choices.filter(choice => choice.toLowerCase().startsWith(inputValue.toLowerCase()))
+    const filtered = choices.filter(choice => choice.toLowerCase().includes(inputValue.toLowerCase()))
     try {
         await interaction.respond(
             filtered.map(choice => ({ name: choice, value: choice })),
