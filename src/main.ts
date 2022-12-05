@@ -17,6 +17,7 @@ import sharp from "sharp"
 import { getUserCharacters, updateCharacter } from './data.js'
 import portafoglio from './commands/portafoglio.js'
 import giocatore from './commands/giocatore.js'
+import spendi from './commands/spendi.js'
 
 registerFlows(
     crea,
@@ -31,7 +32,8 @@ registerFlows(
     personaggio,
     guadagna,
     portafoglio,
-    giocatore
+    giocatore,
+    spendi
 )
 
 // setInterval(() => {

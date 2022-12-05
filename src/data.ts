@@ -128,24 +128,23 @@ const addToInventory = async (characterName: string, location: string, equipment
     }
 }
 
-const removeFromInventory = async (characterName: string, location: string, equipmentName: string, amountToRemove: number) => {
-    const { index } = await equipment.findOne({ name: equipmentName })
+const removeFromInventory = async (characterName: string, location: string, equipmentIndex: string, amountToRemove: number) => {
 
     const currentAmount = (await getCharacterInventory(characterName, location))
-        ?.find(el => el.equipment == index)
+        ?.find(el => el.equipment == equipmentIndex)
         ?.amount ?? 0
 
     if (currentAmount == 0)
-        throw new Error(`'${characterName}' non ha ${equipmentName}`)
+        throw new Error(`notpresent`)
 
     if (currentAmount > amountToRemove) {
-        return characters.updateOne({ name: characterName, "inventory.equipment": index },
+        return characters.updateOne({ name: characterName, "inventory.equipment": equipmentIndex },
             {
                 $set:
                 {
                     "inventory.$":
                     {
-                        equipment: index,
+                        equipment: equipmentIndex,
                         location,
                         amount: currentAmount - amountToRemove
                     }
@@ -159,7 +158,46 @@ const removeFromInventory = async (characterName: string, location: string, equi
                 {
                     inventory:
                     {
-                        equipment: index,
+                        equipment: equipmentIndex,
+                        location,
+                    }
+                }
+            })
+    }
+}
+
+const removeCoins = async (characterName: string, location: string, equipmentIndex: string, amountToRemove: number) => {
+
+    const currentAmount = (await getCharacterWallet(characterName, location))
+        ?.find(el => el.equipment == equipmentIndex)
+        ?.amount ?? 0
+
+    if (currentAmount < amountToRemove)
+        throw new Error(`notenough`)
+
+    if (currentAmount > amountToRemove) {
+        return characters.updateOne({ name: characterName, "inventory.equipment": equipmentIndex },
+            {
+                $set:
+                {
+                    "inventory.$":
+                    {
+                        equipment: equipmentIndex,
+                        location,
+                        amount: currentAmount - amountToRemove
+                    }
+                }
+            })
+    }
+    else {
+        // if the wallet has the exact number of coins
+        return characters.updateOne({ name: characterName },
+            {
+                $pull:
+                {
+                    inventory:
+                    {
+                        equipment: equipmentIndex,
                         location,
                     }
                 }
@@ -280,5 +318,6 @@ export {
     Races,
     Money,
     getCharacterWallet,
-    standardCharacterAutocomplete
+    standardCharacterAutocomplete,
+    removeCoins
 }

@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "discord.js"
-import { checkEquipmentExists, getExpandedCharacterInventory, getUserCharacters, removeFromInventory, standardCharacterAutocomplete, userHasCharacter } from "../data.js"
+import { checkEquipmentExists, equipmentIndex, getExpandedCharacterInventory, removeFromInventory, standardCharacterAutocomplete, userHasCharacter } from "../data.js"
 import { Command } from "../flow.js"
 
 const command: Command = {
@@ -58,11 +58,15 @@ const command: Command = {
             return
         }
         try {
-            await removeFromInventory(personaggio, "zaino", equipmentName, numero)
+
+
+            const eqIndex = await equipmentIndex(equipmentName)
+            await removeFromInventory(personaggio, "zaino", eqIndex, numero)
 
             await interaction.editReply({ content: `Operazione completata con successo!` })
         } catch (e) {
-            await interaction.editReply({ content: `Errore: ${e.message}` })
+            if (e.message = "notpresent")
+                await interaction.editReply({ content: `Errore: nell'inventario di ${personaggio} non c'è neanche un ${equipmentName}` })
         }
     }
 }

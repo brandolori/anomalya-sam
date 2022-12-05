@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "discord.js"
-import { userHasCharacter, addToInventory, standardCharacterAutocomplete } from "../data.js"
+import { updateCharacter, getUserCharacters, userHasCharacter, Money, addToInventory, standardCharacterAutocomplete, removeFromInventory, removeCoins } from "../data.js"
 import { Command } from "../flow.js"
 
 const moneyChoices = [
@@ -10,8 +10,8 @@ const moneyChoices = [
 
 const command: Command = {
     builder: new SlashCommandBuilder()
-        .setName("guadagna")
-        .setDescription("Aggiungi monete nel portafoglio di un personaggio")
+        .setName("spendi")
+        .setDescription("Rimuovi monete dal portafoglio di un personaggio")
         .addStringOption(option =>
             option.setName("personaggio")
                 .setDescription("Il nome del personaggio a cui dare le monete")
@@ -19,7 +19,7 @@ const command: Command = {
                 .setAutocomplete(true))
         .addStringOption(option =>
             option.setName("moneta")
-                .setDescription("Il tipo di moneta da aggiungere al portafoglio")
+                .setDescription("Il tipo di moneta da rimuovere dal portafoglio")
                 .setRequired(true)
                 .setChoices(...moneyChoices))
         .addNumberOption(option =>
@@ -42,10 +42,16 @@ const command: Command = {
             await interaction.editReply({ content: `Errore: non esiste il personaggio '${characterName}'` })
             return
         }
+        try {
 
-        await addToInventory(characterName, "zaino", moneta, importo)
-        await interaction.editReply({ content: `Monete aggiunte nel portafoglio di ${characterName}!` })
-
+            await removeCoins(characterName, "zaino", moneta, importo)
+            await interaction.editReply({ content: `Monete rimosse dal portafoglio di ${characterName}!` })
+        } catch (e) {
+            if (e.message = "notenough")
+                await interaction.editReply({ content: `Errore: nel portafoglio di ${characterName} non ci sono abbastanza monete!` })
+        }
     }
+
 }
+
 export default command
