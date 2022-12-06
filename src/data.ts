@@ -91,8 +91,8 @@ const getEquipmentData = async (name: string) => {
 }
 
 const equipmentIndex = async (equipmentName: string) => {
-    const { index } = await equipment.findOne({ name: equipmentName })
-    return index
+    const response = await equipment.findOne({ name: equipmentName }, { projection: { _id: false, index: true } })
+    return response?.index
 }
 
 const addToInventory = async (characterName: string, location: string, equipmentIndex: string, amount: number) => {
@@ -131,7 +131,6 @@ const addToInventory = async (characterName: string, location: string, equipment
 }
 
 const removeFromInventory = async (characterName: string, location: string, equipmentIndex: string, amountToRemove: number) => {
-
     const currentAmount = (await getCharacterInventory(characterName, location))
         ?.find(el => el.equipment == equipmentIndex)
         ?.amount ?? 0

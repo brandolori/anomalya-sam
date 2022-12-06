@@ -53,20 +53,23 @@ const command: Command = {
             return
         }
 
-        if (!(await checkEquipmentExists(equipmentName))) {
+        const eqIndex = await equipmentIndex(equipmentName)
+
+        if (!eqIndex) {
             await interaction.editReply({ content: `Errore: non esiste l'oggetto '${equipmentName}'` })
             return
         }
+
         try {
-
-
-            const eqIndex = await equipmentIndex(equipmentName)
             await removeFromInventory(personaggio, "zaino", eqIndex, numero)
 
             await interaction.editReply({ content: `Operazione completata con successo!` })
         } catch (e) {
-            if (e.message = "notpresent")
+            if (e.message == "notpresent")
                 await interaction.editReply({ content: `Errore: nell'inventario di ${personaggio} non c'è neanche un ${equipmentName}` })
+            else
+                await interaction.editReply({ content: `Errore generico` })
+
         }
     }
 }
