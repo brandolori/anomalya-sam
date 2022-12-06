@@ -1,5 +1,6 @@
 import { SlashCommandBuilder } from "discord.js"
-import { getEquipmentData, getEquipmentNames, standardCharacterAutocomplete } from "../data.js"
+import { Money } from "../common.js"
+import { getEquipmentData, getEquipmentNames } from "../data.js"
 import { Command } from "../flow.js"
 
 const command: Command = {
@@ -24,13 +25,13 @@ const command: Command = {
     },
     callback: async (interaction, _, originalInteraction) => {
 
-        interaction.deferReply({ ephemeral: true })
+        await interaction.deferReply({ ephemeral: true })
 
         const name = originalInteraction.options.getString("oggetto")
         const eqData = await getEquipmentData(name)
 
         if (eqData) {
-            await interaction.editReply({ content: `Informazioni su ${eqData.name}:\nCosto: ${eqData.cost.quantity} ${eqData.cost.unit}\nPeso: ${eqData.weight} lbs` })
+            await interaction.editReply({ content: `Informazioni su ${eqData.name}:\nCosto: ${eqData.cost.quantity} ${Money.find(el => el.value == eqData.cost.unit).name}\nPeso: ${eqData.weight} libbre` })
         }
         else {
             await interaction.editReply({ content: `Nessun oggetto trovato con il nome di ${name}! Sei sicuro di aver scritto bene?` })

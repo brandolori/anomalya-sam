@@ -1,12 +1,7 @@
 import { SlashCommandBuilder } from "discord.js"
+import { Money } from "../common.js"
 import { userHasCharacter, addToInventory, standardCharacterAutocomplete } from "../data.js"
 import { Command } from "../flow.js"
-
-const moneyChoices = [
-    { name: "Monete d'oro", value: "gp" },
-    { name: "Monete d'argento", value: "sp" },
-    { name: "Monete di bronzo", value: "bp" }
-]
 
 const command: Command = {
     builder: new SlashCommandBuilder()
@@ -21,7 +16,7 @@ const command: Command = {
             option.setName("moneta")
                 .setDescription("Il tipo di moneta da aggiungere al portafoglio")
                 .setRequired(true)
-                .setChoices(...moneyChoices))
+                .setChoices(...Money))
         .addNumberOption(option =>
             option.setName("importo")
                 .setDescription("La quantità di monete")

@@ -41,7 +41,7 @@ const command: Command = {
     },
     callback: async (interaction, _, originalInteraction) => {
 
-        interaction.deferReply({ ephemeral: true })
+        await interaction.deferReply({ ephemeral: true })
 
         const characterName = originalInteraction.options.getString("personaggio")
         const caratteristica = originalInteraction.options.getString("caratteristica")

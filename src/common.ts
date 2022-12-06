@@ -4,4 +4,10 @@ const TOKEN = "MTA0NDE2NTAzMTU2NDE2OTI1Nw.GWtAJi.mFNEt1s2nBsgXAPXH8MbDmkfj6HKTSP
 
 const GUILD_ID = "1044166056031297616"
 
-export { CLIENT_ID, TOKEN, GUILD_ID }
+const Money = [
+    { name: "Monete d'oro", value: "gp" },
+    { name: "Monete d'argento", value: "sp" },
+    { name: "Monete di bronzo", value: "bp" }
+]
+
+export { CLIENT_ID, TOKEN, GUILD_ID, Money }
