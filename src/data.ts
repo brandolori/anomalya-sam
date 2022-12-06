@@ -5,7 +5,7 @@ import { isAdmin } from "./core.js"
 const uri =
     "mongodb://127.0.0.1:27017"
 const client = new MongoClient(uri)
-const database = client.db('test')
+const database = client.db('anomalya')
 const equipment = database.collection('equipment')
 const characters = database.collection('characters')
 
