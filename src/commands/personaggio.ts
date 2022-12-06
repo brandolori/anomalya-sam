@@ -35,10 +35,10 @@ const command: Command = {
         if (character.picture) {
 
             const profileImageFile = new AttachmentBuilder(character.picture.buffer)
-                .setName("picture.jpg")
+                .setName("picture.webp")
             const profileImageEmbed = new EmbedBuilder()
                 .setTitle('Immagine del personaggio')
-                .setImage('attachment://picture.jpg')
+                .setImage('attachment://picture.webp')
             files.push(profileImageFile)
             embeds.push(profileImageEmbed)
         }

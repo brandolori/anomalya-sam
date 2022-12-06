@@ -62,7 +62,7 @@ client.on("messageCreate", async message => {
 
     const outputBuffer = await sharp(inputBuffer)
         .resize(512, 512, { fit: "inside", withoutEnlargement: true })
-        .jpeg()
+        .webp({ quality: 75 })
         .toBuffer()
 
     await updateCharacter(characterName, { picture: outputBuffer })
