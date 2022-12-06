@@ -1,4 +1,4 @@
-import { AutocompleteInteraction, CacheType } from "discord.js"
+import { AutocompleteInteraction } from "discord.js"
 import { MongoClient } from "mongodb"
 import { isAdmin } from "./core.js"
 
@@ -8,6 +8,8 @@ const client = new MongoClient(uri)
 const database = client.db('anomalya')
 const equipment = database.collection('equipment')
 const characters = database.collection('characters')
+
+await characters.createIndex({ name: 1, user: 1 })
 
 type Character = {
     name: string,

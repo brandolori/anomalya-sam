@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "discord.js"
-import { updateCharacter, getUserCharacters, userHasCharacter, standardCharacterAutocomplete } from "../data.js"
+import { updateCharacter, userHasCharacter, standardCharacterAutocomplete } from "../data.js"
 import { Command } from "../flow.js"
 
 const abilityChoices = Array.from(Array(20).keys())

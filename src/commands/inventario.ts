@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "discord.js"
-import { getAllCharacters, getExpandedCharacterInventory, standardCharacterAutocomplete, userHasCharacter } from "../data.js"
+import { getExpandedCharacterInventory, standardCharacterAutocomplete, userHasCharacter } from "../data.js"
 import { Command } from "../flow.js"
 
 const command: Command = {
