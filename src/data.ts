@@ -90,7 +90,7 @@ const getEquipmentData = async (name: string) => {
     return response as unknown as Equipment
 }
 
-const equipmentIndex = async (equipmentName: string) => {
+const getEquipmentIndex = async (equipmentName: string) => {
     const response = await equipment.findOne({ name: equipmentName }, { projection: { _id: false, index: true } })
     return response?.index
 }
@@ -309,7 +309,7 @@ export {
     updateCharacter,
     getEquipmentNames,
     getEquipmentData,
-    equipmentIndex,
+    getEquipmentIndex,
     addToInventory,
     getCharacterInventory,
     checkCharacterExists,

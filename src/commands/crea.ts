@@ -27,10 +27,10 @@ const command: Command = {
     ],
     callback: async (interaction, data, originalInteraction) => {
 
-        const nome = originalInteraction.options.getString("nome")
+        const characterName = originalInteraction.options.getString("nome")
 
         const character: Partial<Character> = {
-            name: nome,
+            name: characterName,
             race: data.race,
             strength: Number.parseInt(data.strength),
             dexterity: Number.parseInt(data.dexterity),

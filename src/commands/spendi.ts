@@ -30,8 +30,8 @@ const command: Command = {
         await interaction.deferReply({ ephemeral: true })
 
         const characterName = originalInteraction.options.getString("personaggio")
-        const moneta = originalInteraction.options.getString("moneta")
-        const importo = originalInteraction.options.getNumber("importo")
+        const coin = originalInteraction.options.getString("moneta")
+        const coinAmount = originalInteraction.options.getNumber("importo")
 
         if (!(await userHasCharacter(interaction.user.id, characterName))) {
             await interaction.editReply({ content: `Errore: non esiste il personaggio '${characterName}'` })
@@ -39,7 +39,7 @@ const command: Command = {
         }
         try {
 
-            await removeCoins(characterName, "zaino", moneta, importo)
+            await removeCoins(characterName, "zaino", coin, coinAmount)
             await interaction.editReply({ content: `Monete rimosse dal portafoglio di ${characterName}!` })
         } catch (e) {
             if (e.message = "notenough")

@@ -24,7 +24,7 @@ const command: Command = {
         await interaction.deferReply({ ephemeral: true })
 
         const dice = interaction.options.getString("dadi")
-        const adv = interaction.options.getString("vantaggio")
+        const advantageType = interaction.options.getString("vantaggio")
 
         const cleanedDice = dice.replace(" ", "").toLowerCase()
         const groups = cleanedDice.replace("-", "+-").split("+")
@@ -43,12 +43,12 @@ const command: Command = {
                 const diceAmount = Number.parseInt(diceAmountString)
                 const dice = Number.parseInt(diceString)
 
-                if (dice == 20 && diceAmount == 1 && adv) {
+                if (dice == 20 && diceAmount == 1 && advantageType) {
                     const first = throwDice(dice)
                     const second = throwDice(dice)
 
                     totalString = `${totalString}${total == 0 ? "" : " + "}[${first}, ${second}]`
-                    total += adv == "advantage"
+                    total += advantageType == "advantage"
                         ? Math.max(first, second)
                         : Math.min(first, second)
                 } else {

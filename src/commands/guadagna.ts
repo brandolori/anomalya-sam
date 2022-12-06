@@ -30,15 +30,15 @@ const command: Command = {
         await interaction.deferReply({ ephemeral: true })
 
         const characterName = originalInteraction.options.getString("personaggio")
-        const moneta = originalInteraction.options.getString("moneta")
-        const importo = originalInteraction.options.getNumber("importo")
+        const coinType = originalInteraction.options.getString("moneta")
+        const coinAmount = originalInteraction.options.getNumber("importo")
 
         if (!(await userHasCharacter(interaction.user.id, characterName))) {
             await interaction.editReply({ content: `Errore: non esiste il personaggio '${characterName}'` })
             return
         }
 
-        await addToInventory(characterName, "zaino", moneta, importo)
+        await addToInventory(characterName, "zaino", coinType, coinAmount)
         await interaction.editReply({ content: `Monete aggiunte nel portafoglio di ${characterName}!` })
 
     }

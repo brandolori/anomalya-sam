@@ -27,14 +27,14 @@ const command: Command = {
 
         await interaction.deferReply({ ephemeral: true })
 
-        const name = originalInteraction.options.getString("oggetto")
-        const eqData = await getEquipmentData(name)
+        const equipmentName = originalInteraction.options.getString("oggetto")
+        const equipmentData = await getEquipmentData(equipmentName)
 
-        if (eqData) {
-            await interaction.editReply({ content: `Informazioni su ${eqData.name}:\nCosto: ${eqData.cost.quantity} ${Money.find(el => el.value == eqData.cost.unit).name}\nPeso: ${eqData.weight} libbre` })
+        if (equipmentData) {
+            await interaction.editReply({ content: `Informazioni su ${equipmentData.name}:\nCosto: ${equipmentData.cost.quantity} ${Money.find(el => el.value == equipmentData.cost.unit).name}\nPeso: ${equipmentData.weight} libbre` })
         }
         else {
-            await interaction.editReply({ content: `Nessun oggetto trovato con il nome di ${name}! Sei sicuro di aver scritto bene?` })
+            await interaction.editReply({ content: `Nessun oggetto trovato con il nome di ${equipmentName}! Sei sicuro di aver scritto bene?` })
         }
 
     }

@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "discord.js"
-import { addToInventory, checkEquipmentExists, equipmentIndex, getEquipmentNames, standardCharacterAutocomplete, userHasCharacter } from "../data.js"
+import { addToInventory, checkEquipmentExists, getEquipmentIndex, getEquipmentNames, standardCharacterAutocomplete, userHasCharacter } from "../data.js"
 import { Command } from "../flow.js"
 
 const command: Command = {
@@ -42,24 +42,24 @@ const command: Command = {
 
         await interaction.deferReply({ ephemeral: true })
 
-        const oggetto = originalInteraction.options.getString("oggetto")
-        const personaggio = originalInteraction.options.getString("personaggio")
-        const numeroOption = originalInteraction.options.getNumber("numero") ?? 1
-        const numero = Math.max(numeroOption, 1)
+        const equipmentName = originalInteraction.options.getString("oggetto")
+        const characterName = originalInteraction.options.getString("personaggio")
+        const equipmentAmount = originalInteraction.options.getNumber("numero") ?? 1
+        const sanitizedEquipmentAmount = Math.max(equipmentAmount, 1)
 
-        if (!(await userHasCharacter(interaction.user.id, personaggio))) {
-            await interaction.editReply({ content: `Errore: non esiste il personaggio '${personaggio}'` })
+        if (!(await userHasCharacter(interaction.user.id, characterName))) {
+            await interaction.editReply({ content: `Errore: non esiste il personaggio '${characterName}'` })
             return
         }
 
-        if (!(await checkEquipmentExists(oggetto))) {
-            await interaction.editReply({ content: `Errore: non esiste l'oggetto '${oggetto}'` })
+        const eqIndex = await getEquipmentIndex(equipmentName)
+
+        if (!eqIndex) {
+            await interaction.editReply({ content: `Errore: non esiste l'oggetto '${equipmentName}'` })
             return
         }
 
-        const eqIndex = await equipmentIndex(oggetto)
-
-        await addToInventory(personaggio, "zaino", eqIndex, numero)
+        await addToInventory(characterName, "zaino", eqIndex, sanitizedEquipmentAmount)
 
         await interaction.editReply({ content: `Operazione completata con successo!` })
     }

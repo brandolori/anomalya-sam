@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "discord.js"
-import { checkEquipmentExists, equipmentIndex, getExpandedCharacterInventory, removeFromInventory, standardCharacterAutocomplete, userHasCharacter } from "../data.js"
+import { getEquipmentIndex, getExpandedCharacterInventory, removeFromInventory, standardCharacterAutocomplete, userHasCharacter } from "../data.js"
 import { Command } from "../flow.js"
 
 const command: Command = {
@@ -44,29 +44,29 @@ const command: Command = {
         await interaction.deferReply({ ephemeral: true })
 
         const equipmentName = originalInteraction.options.getString("oggetto")
-        const personaggio = originalInteraction.options.getString("personaggio")
-        const numeroOption = originalInteraction.options.getNumber("numero") ?? 1
-        const numero = Math.max(numeroOption, 1)
+        const characterName = originalInteraction.options.getString("personaggio")
+        const equipmentAmount = originalInteraction.options.getNumber("numero") ?? 1
+        const sanitizedEquipmentAmount = Math.max(equipmentAmount, 1)
 
-        if (!(await userHasCharacter(interaction.user.id, personaggio))) {
-            await interaction.editReply({ content: `Errore: non esiste il personaggio '${personaggio}'` })
+        if (!(await userHasCharacter(interaction.user.id, characterName))) {
+            await interaction.editReply({ content: `Errore: non esiste il personaggio '${characterName}'` })
             return
         }
 
-        const eqIndex = await equipmentIndex(equipmentName)
+        const equipmentIndex = await getEquipmentIndex(equipmentName)
 
-        if (!eqIndex) {
+        if (!equipmentIndex) {
             await interaction.editReply({ content: `Errore: non esiste l'oggetto '${equipmentName}'` })
             return
         }
 
         try {
-            await removeFromInventory(personaggio, "zaino", eqIndex, numero)
+            await removeFromInventory(characterName, "zaino", equipmentIndex, sanitizedEquipmentAmount)
 
             await interaction.editReply({ content: `Operazione completata con successo!` })
         } catch (e) {
             if (e.message == "notpresent")
-                await interaction.editReply({ content: `Errore: nell'inventario di ${personaggio} non c'è neanche un ${equipmentName}` })
+                await interaction.editReply({ content: `Errore: nell'inventario di ${characterName} non c'è neanche un ${equipmentName}` })
             else
                 await interaction.editReply({ content: `Errore generico` })
 

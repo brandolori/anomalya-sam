@@ -44,15 +44,15 @@ const command: Command = {
         await interaction.deferReply({ ephemeral: true })
 
         const characterName = originalInteraction.options.getString("personaggio")
-        const caratteristica = originalInteraction.options.getString("caratteristica")
-        const punteggio = originalInteraction.options.getNumber("punteggio")
+        const ability = originalInteraction.options.getString("caratteristica")
+        const score = originalInteraction.options.getNumber("punteggio")
 
         if (!(await userHasCharacter(interaction.user.id, characterName))) {
             await interaction.editReply({ content: `Errore: non esiste il personaggio '${characterName}'` })
             return
         }
 
-        await updateCharacter(characterName, { [caratteristica]: punteggio })
+        await updateCharacter(characterName, { [ability]: score })
         interaction.editReply({ content: `${characterName} aggiornato correttamente!` })
 
     }
