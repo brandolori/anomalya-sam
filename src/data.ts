@@ -253,6 +253,9 @@ const getExpandedCharacterInventory = async (character: string, location: string
             }
         },
         {
+            $unwind: "$inventory"
+        },
+        {
             $lookup: {
                 from: "equipment",
                 localField: "inventory.equipment",
@@ -269,9 +272,9 @@ const getExpandedCharacterInventory = async (character: string, location: string
         }
     ]).toArray()
 
-    const inventory = aggregation[0]
+    const inventory = aggregation.map(el => ({ ...el.inventory, ...el.equipmentData[0] }))
 
-    return inventory.inventory.map((el, i) => ({ ...el, ...inventory.equipmentData[i] })) as (Equipment & EquipmentInInventory)[]
+    return inventory as (Equipment & EquipmentInInventory)[]
 }
 
 const Races = [

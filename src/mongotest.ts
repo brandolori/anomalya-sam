@@ -1,19 +1,20 @@
-import { MongoClient } from "mongodb"
+import pkg from 'mongodb'
+const { MongoClient } = pkg
 
 
 // Replace the uri string with your connection string.
 const uri =
     "mongodb://127.0.0.1:27017"
-const client = new MongoClient(uri)
-const database = client.db('test')
+const client = new MongoClient(uri, { useUnifiedTopology: true })
+await client.connect()
+const database = client.db('anomalya')
 const equipment = database.collection('equipment')
 const characters = database.collection('characters')
 
-const response = await characters.findOne({ name: "Andrea" }, { projection: { inventory: true } })
 const a = await characters.aggregate([
     {
         $match: {
-            name: "Batman"
+            name: "Jhon"
         }
     },
     {
@@ -26,6 +27,9 @@ const a = await characters.aggregate([
                 }
             }
         }
+    },
+    {
+        $unwind: "$inventory"
     },
     {
         $lookup: {
@@ -41,11 +45,13 @@ const a = await characters.aggregate([
             inventory: true,
             equipmentData: true
         }
-    }
+    },
 ]).toArray()
 
+const b = await equipment.findOne({ index: "handaxe" })
 
 client.close()
 
-console.log(a)
+console.log(a[1])
+// console.log(b)
 
