@@ -1,11 +1,11 @@
 import { AutocompleteInteraction } from "discord.js"
-import pkg from 'mongodb';
-const { MongoClient } = pkg;
+import pkg from 'mongodb'
+const { MongoClient } = pkg
 import { isAdmin } from "./core.js"
 
 const uri =
     "mongodb://127.0.0.1:27017"
-const client = new MongoClient(uri)
+const client = new MongoClient(uri, { useUnifiedTopology: true })
 await client.connect()
 const database = client.db('anomalya')
 const equipment = database.collection('equipment')
