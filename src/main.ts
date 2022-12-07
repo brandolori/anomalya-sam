@@ -57,7 +57,7 @@ client.on("messageCreate", async message => {
 
     const { data: characterName, interaction } = await requestChoice(message, characters.map(el => el.name), "A quale personaggio aggiornare l'immagine?")
 
-    const res = await fetch(message.attachments.first().url)
+    const res = await fetch(message.attachments.first()!.url)
     const inputBuffer = Buffer.from(await res.arrayBuffer())
 
     const outputBuffer = await sharp(inputBuffer)
