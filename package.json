@@ -7,13 +7,15 @@
   "scripts": {
     "tsc:build": "tsc",
     "tsc:watch": "tsc --watch",
-    "node:start": "node dist/main.js"
+    "node:start": "node dist/main.js",
+    "node:dev": "cross-env DEV=DEV node dist/main.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@types/mongodb": "^3.6.20",
+    "cross-env": "^7.0.3",
     "discord.js": "^14.6.0",
     "mongodb": "^3.7.3",
     "node-fetch": "^3.3.0",
