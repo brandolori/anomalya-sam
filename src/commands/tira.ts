@@ -21,7 +21,7 @@ const command: Command = {
         ),
     callback: async (interaction) => {
 
-        await interaction.deferReply({ ephemeral: true })
+        await interaction.deferReply()
 
         const dice = interaction.options.getString("dadi")
         const advantageType = interaction.options.getString("vantaggio")
