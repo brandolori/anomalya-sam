@@ -32,7 +32,7 @@ const command: Command = {
         const totalWeight = equipment.reduce((prev, cur) => prev + cur.amount * cur.weight, 0)
         const equipmentAmount = equipment.reduce((prev, cur) => prev + cur.amount, 0)
 
-        await interaction.editReply({ content: `L'inventario di ${characterName} contiene ${equipmentAmount} oggetti, per un peso totale di ${totalWeight} lbs:\n\n${equipmentString}` })
+        await interaction.editReply({ content: `L'inventario di ${characterName} contiene ${equipmentAmount} oggetti, per un peso totale di ${totalWeight} libbre${equipmentAmount ? ":" : ""}\n\n${equipmentString}` })
     }
 }
 export default command

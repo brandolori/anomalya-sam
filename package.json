@@ -1,8 +1,7 @@
 {
   "name": "anomalia-sam",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "",
-  "main": "index.js",
   "type": "module",
   "scripts": {
     "postinstall": "npm run tsc:build",
@@ -11,8 +10,6 @@
     "node:start": "node dist/main.js",
     "node:dev": "cross-env DEV=DEV node dist/main.js"
   },
-  "keywords": [],
-  "author": "",
   "license": "ISC",
   "dependencies": {
     "@types/mongodb": "^3.6.20",
