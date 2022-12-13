@@ -1,5 +1,6 @@
 import { SlashCommandBuilder } from "discord.js"
-import { getEquipmentIndex, getExpandedCharacterInventory, removeFromInventory, standardCharacterAutocomplete, userHasCharacter } from "../data.js"
+import { CARRY_CAPACITY_MESSAGE } from "../common.js"
+import { getEquipmentIndex, getExpandedCharacterInventory, getLightCharacter, removeFromInventory, standardCharacterAutocomplete, userHasCharacter } from "../data.js"
 import { Command } from "../flow.js"
 
 const command: Command = {
@@ -63,10 +64,22 @@ const command: Command = {
         try {
             await removeFromInventory(characterName, "zaino", equipmentIndex, sanitizedEquipmentAmount)
 
-            await interaction.editReply({ content: `Operazione completata con successo!` })
+            const equipment = await getExpandedCharacterInventory(characterName, "zaino")
+
+            const totalWeight = equipment.reduce((prev, cur) => prev + (cur.amount * cur.weight), 0)
+
+            await interaction.editReply({ content: `Operazione completata con successo! Lo zaino di ${characterName} pesa ora ${totalWeight} libbre` })
+
+            const character = await getLightCharacter(characterName)
+
+            const carryCapacity = character.strength * 15
+
+            if (totalWeight > carryCapacity)
+                await interaction.followUp({ content: CARRY_CAPACITY_MESSAGE, ephemeral: true })
+
         } catch (e) {
             if (e.message == "notpresent")
-                await interaction.editReply({ content: `Errore: nell'inventario di ${characterName} non c'è neanche un ${equipmentName}` })
+                await interaction.editReply({ content: `Errore: nello zaino di ${characterName} non c'è neanche un ${equipmentName}` })
             else
                 await interaction.editReply({ content: `Errore generico` })
 

@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "discord.js"
-import { getExpandedCharacterInventory, standardCharacterAutocomplete, userHasCharacter } from "../data.js"
+import { getExpandedCharacterInventory, getLightCharacter, standardCharacterAutocomplete, userHasCharacter } from "../data.js"
 import { Command } from "../flow.js"
 
 const command: Command = {
@@ -32,7 +32,11 @@ const command: Command = {
         const totalWeight = equipment.reduce((prev, cur) => prev + cur.amount * cur.weight, 0)
         const equipmentAmount = equipment.reduce((prev, cur) => prev + cur.amount, 0)
 
-        await interaction.editReply({ content: `L'inventario di ${characterName} contiene ${equipmentAmount} oggetti, per un peso totale di ${totalWeight} libbre${equipmentAmount ? ":" : ""}\n\n${equipmentString}` })
+        const character = await getLightCharacter(characterName)
+
+        const carryCapacity = character.strength * 15
+
+        await interaction.editReply({ content: `L'inventario di ${characterName} contiene ${equipmentAmount} oggetti, per un peso totale di ${totalWeight} libbre sulle ${carryCapacity} che può trasportare${equipmentAmount ? ":" : ""}\n\n${equipmentString}` })
     }
 }
 export default command

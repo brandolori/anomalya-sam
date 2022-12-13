@@ -12,6 +12,7 @@ const equipment = database.collection('equipment')
 const characters = database.collection('characters')
 
 await characters.createIndex({ name: 1, user: 1 })
+await equipment.createIndex({ name: 1, index: 1 })
 
 type Character = {
     name: string,
@@ -40,22 +41,45 @@ type EquipmentInInventory = {
     amount: number
 }
 
-type LightCharacter = { name: string, user: string }
+type IndexCharacter = { name: string, user: string }
+
+type LightCharacter = Omit<Character, "inventory" | "picture">
 
 const getUserCharacters = async (userId: string) => {
     const response = await characters.find({ user: userId }, { projection: { _id: false, name: true, user: true } }).toArray()
 
-    return response as unknown as LightCharacter[]
+    return response as unknown as IndexCharacter[]
 }
 
 const getAllCharacters = async () => {
     const response = await characters.find({}, { projection: { _id: false, name: true, user: true } }).toArray()
 
-    return response as unknown as LightCharacter[]
+    return response as unknown as IndexCharacter[]
 }
 
 const getCharacter = async (characterName: string) => {
     return (await characters.findOne({ name: characterName })) as unknown as Character
+}
+
+const getLightCharacter = async (characterName: string) => {
+    const response = await characters.findOne(
+        { name: characterName },
+        {
+            projection: {
+                _id: false,
+                name: true,
+                user: true,
+                race: true,
+                strength: true,
+                dexterity: true,
+                constitution: true,
+                intelligence: true,
+                winsdom: true,
+                charisma: true,
+                picture: true
+            }
+        })
+    return response as unknown as LightCharacter
 }
 
 const userHasCharacter = async (userId: string, characterName: string) => {
@@ -325,5 +349,6 @@ export {
     Money,
     getCharacterWallet,
     standardCharacterAutocomplete,
-    removeCoins
+    removeCoins,
+    getLightCharacter
 }
