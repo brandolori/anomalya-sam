@@ -23,6 +23,7 @@ type Character = {
     intelligence: number,
     winsdom: number,
     charisma: number,
+    description: string,
     inventory: EquipmentInInventory[]
     user: string,
     picture: any

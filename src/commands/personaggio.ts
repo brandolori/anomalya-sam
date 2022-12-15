@@ -36,23 +36,25 @@ const command: Command = {
 
             const profileImageFile = new AttachmentBuilder(character.picture.buffer)
                 .setName("picture.webp")
-            const profileImageEmbed = new EmbedBuilder()
-                .setTitle('Immagine del personaggio')
-                .setImage('attachment://picture.webp')
-            files.push(profileImageFile)
-            embeds.push(profileImageEmbed)
-        }
-
-        await interaction.editReply({
-            content: `Nome: ${character.name}
-Razza: ${character.race}
+            const embed = new EmbedBuilder()
+                .setTitle(character.name)
+                .setDescription(
+                    `Razza: ${character.race}
 STR: ${character.strength}
 DEX: ${character.dexterity}
 CON: ${character.constitution}
 INT: ${character.intelligence}
 WIS: ${character.winsdom}
 CHA: ${character.charisma}
-${calledByAdmin ? `Proprietario: <@${character.user}>` : ""}`,
+${calledByAdmin ? `Proprietario: <@${character.user}>` : ""}\n
+${character.description}`)
+                .setImage('attachment://picture.webp')
+            files.push(profileImageFile)
+            embeds.push(embed)
+        }
+
+        await interaction.editReply({
+            content: "",
             embeds,
             files
         })

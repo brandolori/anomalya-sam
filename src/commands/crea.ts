@@ -16,6 +16,7 @@ const command: Command = {
                 .setDescription("Il nome completo del nuovo personaggio")
                 .setRequired(true)),
     steps: [
+        { name: "description", type: "input", prompt: ["Inserisci una descrizione del personaggio"] },
         { name: "race", type: "choice", options: Races, prompt: "Scegli la razza del personaggio" },
 
         { name: "strength", type: "choice", options: abilityChoices, prompt: "Scegli il punteggio di forza del personaggio" },
@@ -38,6 +39,7 @@ const command: Command = {
             intelligence: Number.parseInt(data.intelligence),
             winsdom: Number.parseInt(data.winsdom),
             charisma: Number.parseInt(data.charisma),
+            description: data.description[0],
             inventory: [],
             user: interaction.user.id
         }
