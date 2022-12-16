@@ -48,7 +48,6 @@ const adminCache = members.filter(el =>
 )
 
 const isAdmin = (userId: string) => {
-    console.log("call")
     return adminCache.has(userId)
 }
 
