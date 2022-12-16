@@ -27,7 +27,7 @@ const command: Command = {
         }
 
         const equipment = await getExpandedCharacterInventory(characterName, "zaino")
-        const equipmentString = equipment.map(el => `${el.amount} ${el.name}`).join("\n")
+        const equipmentString = equipment.map(el => `• ${el.amount} ${el.name}`).join("\n")
 
         const totalWeight = equipment.reduce((prev, cur) => prev + cur.amount * cur.weight, 0)
         const equipmentAmount = equipment.reduce((prev, cur) => prev + cur.amount, 0)
