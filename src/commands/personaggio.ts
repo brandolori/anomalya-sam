@@ -27,7 +27,7 @@ const command: Command = {
         }
 
         const character = await getCharacter(characterName)
-        const calledByAdmin = await isAdmin(interaction.user.id)
+        const calledByAdmin = isAdmin(interaction.user.id)
 
         let files = []
         let embeds = []

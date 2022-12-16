@@ -15,13 +15,17 @@ const client = new Client({
     ]
 })
 
-client.on('ready', () => {
-    console.log(`Logged in as ${client.user.tag}!`)
-})
-
 client.login(TOKEN)
 
 client.setMaxListeners(0)
+
+// make sure the client is ready
+await new Promise<void>((res) => {
+    client.on('ready', () => {
+        console.log(`Logged in as ${client.user.tag}!`)
+        res()
+    })
+})
 
 const registerCommands = async (commands: SlashCommandBuilder[]) => {
 
@@ -37,10 +41,15 @@ const registerCommands = async (commands: SlashCommandBuilder[]) => {
     }
 }
 
-const isAdmin = async (userId: string) => {
-    const guild = await client.guilds.fetch(GUILD_ID)
-    const member = await guild.members.fetch(userId)
-    return ADMIN_ROLE_IDS.some(role => member.roles.cache.has(role))
+const guild = await client.guilds.fetch(GUILD_ID)
+const members = await guild.members.fetch()
+const adminCache = members.filter(el =>
+    ADMIN_ROLE_IDS.some(role => el.roles.cache.has(role))
+)
+
+const isAdmin = (userId: string) => {
+    console.log("call")
+    return adminCache.has(userId)
 }
 
 const getEventListenersCount = () => client.eventNames().map(el => client.listenerCount(el)).reduce((prev, curr) => prev + curr, 0)

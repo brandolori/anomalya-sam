@@ -14,7 +14,7 @@ const command: Command = {
     callback: async (interaction, _, originalInteraction) => {
         await interaction.deferReply({ ephemeral: true })
 
-        if (!(await isAdmin(interaction.user.id))) {
+        if (!isAdmin(interaction.user.id)) {
             await interaction.editReply({ content: `Oooops! Questo comando è solo per i DM` })
             return
         }

@@ -84,7 +84,7 @@ const getLightCharacter = async (characterName: string) => {
 }
 
 const userHasCharacter = async (userId: string, characterName: string) => {
-    if (await isAdmin(userId))
+    if (isAdmin(userId))
         return (await characters.countDocuments({ name: characterName })) > 0
     else
         return (await characters.countDocuments({ name: characterName, user: userId })) > 0
@@ -315,7 +315,7 @@ const Races = [
 
 const standardCharacterAutocomplete = async (inputValue: string, interaction: AutocompleteInteraction) => {
 
-    const characters = await isAdmin(interaction.user.id)
+    const characters = isAdmin(interaction.user.id)
         ? await getAllCharacters()
         : await getUserCharacters(interaction.user.id)
 

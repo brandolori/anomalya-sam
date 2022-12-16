@@ -12,7 +12,7 @@ const command: Command = {
         const info = {
             version: process.env.npm_package_version,
             env: process.env.DEV ? "DEV" : "PROD",
-            userIsAdmin: await isAdmin(interaction.user.id),
+            userIsAdmin: isAdmin(interaction.user.id),
             eventListeners: getEventListenersCount()
         }
 
