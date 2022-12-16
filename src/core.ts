@@ -1,5 +1,5 @@
 import { Client, GatewayIntentBits, Partials, REST, Routes, SlashCommandBuilder } from "discord.js"
-import { TOKEN, CLIENT_ID, GUILD_ID, ADMIN_ROLE_ID } from "./common.js"
+import { TOKEN, CLIENT_ID, GUILD_ID, ADMIN_ROLE_IDS } from "./common.js"
 
 const client = new Client({
     partials: [
@@ -40,7 +40,9 @@ const registerCommands = async (commands: SlashCommandBuilder[]) => {
 const isAdmin = async (userId: string) => {
     const guild = await client.guilds.fetch(GUILD_ID)
     const member = await guild.members.fetch(userId)
-    return member.roles.cache.has(ADMIN_ROLE_ID)
+    return ADMIN_ROLE_IDS.some(role => member.roles.cache.has(role))
 }
 
-export { client, registerCommands, isAdmin }
+const getEventListenersCount = () => client.eventNames().map(el => client.listenerCount(el)).reduce((prev, curr) => prev + curr, 0)
+
+export { client, registerCommands, isAdmin, getEventListenersCount }

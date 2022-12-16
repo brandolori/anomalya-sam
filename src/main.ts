@@ -19,6 +19,7 @@ import portafoglio from './commands/portafoglio.js'
 import giocatore from './commands/giocatore.js'
 import spendi from './commands/spendi.js'
 import modificadescrizione from './commands/modificadescrizione.js'
+import info from './commands/info.js'
 
 registerFlows(
     crea,
@@ -35,13 +36,9 @@ registerFlows(
     guadagna,
     portafoglio,
     giocatore,
-    spendi
+    spendi,
+    info
 )
-
-// setInterval(() => {
-//     const count = client.eventNames().map(el => client.listenerCount(el)).reduce((prev, curr) => prev + curr, 0)
-//     console.log("Numero di listener:", count)
-// }, 5000)
 
 // caricamento immagine personaggio
 client.on("messageCreate", async message => {
