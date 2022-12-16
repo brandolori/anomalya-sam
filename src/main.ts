@@ -7,7 +7,7 @@ import oggetto from './commands/oggetto.js'
 import raccogli from './commands/raccogli.js'
 import tira from './commands/tira.js'
 import getta from './commands/getta.js'
-import modificacaratteristiche from './commands/modificacaratteristiche.js'
+import modificacaratteristica from './commands/modificacaratteristica.js'
 import personaggio from './commands/personaggio.js'
 import guadagna from './commands/guadagna.js'
 import { client } from './core.js'
@@ -18,6 +18,7 @@ import { getUserCharacters, updateCharacter } from './data.js'
 import portafoglio from './commands/portafoglio.js'
 import giocatore from './commands/giocatore.js'
 import spendi from './commands/spendi.js'
+import modificadescrizione from './commands/modificadescrizione.js'
 
 registerFlows(
     crea,
@@ -28,7 +29,8 @@ registerFlows(
     tira,
     getta,
     inventario,
-    modificacaratteristiche,
+    modificacaratteristica,
+    modificadescrizione,
     personaggio,
     guadagna,
     portafoglio,
@@ -61,8 +63,8 @@ client.on("messageCreate", async message => {
     const inputBuffer = Buffer.from(await res.arrayBuffer())
 
     const outputBuffer = await sharp(inputBuffer)
-        .resize(512, 512, { fit: "inside", withoutEnlargement: true })
-        .webp({ quality: 75 })
+        .resize(360, 360, { fit: 'outside', withoutEnlargement: true })
+        .webp({ quality: 65, effort: 6, alphaQuality: 90 })
         .toBuffer()
 
     await updateCharacter(characterName, { picture: outputBuffer })

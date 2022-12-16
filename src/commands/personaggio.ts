@@ -32,26 +32,26 @@ const command: Command = {
         let files = []
         let embeds = []
 
-        if (character.picture) {
-
-            const profileImageFile = new AttachmentBuilder(character.picture.buffer)
-                .setName("picture.webp")
-            const embed = new EmbedBuilder()
-                .setTitle(character.name)
-                .setDescription(
-                    `Razza: ${character.race}
+        const embed = new EmbedBuilder()
+            .setTitle(character.name)
+            .setDescription(
+                `Razza: ${character.race}\n
 STR: ${character.strength}
 DEX: ${character.dexterity}
 CON: ${character.constitution}
 INT: ${character.intelligence}
 WIS: ${character.winsdom}
 CHA: ${character.charisma}
-${calledByAdmin ? `Proprietario: <@${character.user}>` : ""}\n
-${character.description}`)
-                .setImage('attachment://picture.webp')
+${calledByAdmin ? `\nProprietario: <@${character.user}>\n` : ""}
+_${character.description ?? "Nessuna descrizione fornita"}_`)
+
+        if (character.picture) {
+            const profileImageFile = new AttachmentBuilder(character.picture.buffer)
+                .setName("picture.webp")
+            embed.setImage('attachment://picture.webp')
             files.push(profileImageFile)
-            embeds.push(embed)
         }
+        embeds.push(embed)
 
         await interaction.editReply({
             content: "",
