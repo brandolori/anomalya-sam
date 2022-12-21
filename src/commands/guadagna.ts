@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from "discord.js"
 import { Money } from "../common.js"
-import { userHasCharacter, addToInventory, standardCharacterAutocomplete } from "../data.js"
+import { userHasCharacter, addToInventory, standardCharacterAutocomplete, addCoins } from "../data.js"
 import { Command } from "../flow.js"
 
 const command: Command = {
@@ -38,7 +38,7 @@ const command: Command = {
             return
         }
 
-        await addToInventory(characterName, "zaino", coinType, coinAmount)
+        await addCoins(characterName, "zaino", coinType, coinAmount)
         await interaction.editReply({ content: `Monete aggiunte nel portafoglio di ${characterName}!` })
 
     }

@@ -123,6 +123,7 @@ const getEquipmentIndex = async (equipmentName: string) => {
 }
 
 const addToInventory = async (characterName: string, location: string, equipmentIndex: string, amount: number) => {
+
     const currentAmount = (await getCharacterInventory(characterName, location))
         ?.find(el => el.equipment == equipmentIndex)
         ?.amount ?? 0
@@ -188,6 +189,43 @@ const removeFromInventory = async (characterName: string, location: string, equi
                     {
                         equipment: equipmentIndex,
                         location,
+                    }
+                }
+            })
+    }
+}
+
+const addCoins = async (characterName: string, location: string, equipmentIndex: string, amount: number) => {
+
+    const currentAmount = (await getCharacterWallet(characterName, location))
+        ?.find(el => el.equipment == equipmentIndex)
+        ?.amount ?? 0
+
+
+    if (currentAmount > 0) {
+        return characters.updateOne({ name: characterName, "inventory.equipment": equipmentIndex },
+            {
+                $set:
+                {
+                    "inventory.$":
+                    {
+                        equipment: equipmentIndex,
+                        location,
+                        amount: currentAmount + amount
+                    }
+                }
+            })
+    }
+    else {
+        return characters.updateOne({ name: characterName },
+            {
+                $push:
+                {
+                    inventory:
+                    {
+                        equipment: equipmentIndex,
+                        location,
+                        amount: amount
                     }
                 }
             })
@@ -351,5 +389,6 @@ export {
     getCharacterWallet,
     standardCharacterAutocomplete,
     removeCoins,
+    addCoins,
     getLightCharacter
 }
