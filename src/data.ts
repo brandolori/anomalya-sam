@@ -10,6 +10,8 @@ await client.connect()
 const database = client.db('anomalya')
 const equipment = database.collection('equipment')
 const characters = database.collection('characters')
+const campaigns = database.collection('campaigns')
+const players = database.collection('players')
 
 await characters.createIndex({ name: 1, user: 1 })
 await equipment.createIndex({ name: 1, index: 1 })
@@ -45,6 +47,25 @@ type EquipmentInInventory = {
 type IndexCharacter = { name: string, user: string }
 
 type LightCharacter = Omit<Character, "inventory" | "picture">
+
+type Campaign = {
+    name: string
+    description: string,
+    characters: IndexCharacter[]
+}
+
+const createCampaign = async (name: string, description: string) => {
+    if ((await campaigns.countDocuments({ name })) > 0)
+        throw new Error(`Campagna '${name}' già esistente! Prova con un'altro nome`)
+
+    return campaigns.insertOne({ name, description, characters: [] })
+}
+
+const getCampaigns = async () => {
+    const response = campaigns.find().toArray()
+
+    return response as unknown as Campaign[]
+}
 
 const getUserCharacters = async (userId: string) => {
     const response = await characters.find({ user: userId }, { projection: { _id: false, name: true, user: true } }).toArray()
@@ -390,5 +411,7 @@ export {
     standardCharacterAutocomplete,
     removeCoins,
     addCoins,
-    getLightCharacter
+    getLightCharacter,
+    createCampaign,
+    getCampaigns
 }
