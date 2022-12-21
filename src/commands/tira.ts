@@ -60,7 +60,12 @@ const command: Command = {
                 }
             }
         })
-        interaction.editReply(`Hai tirato ${cleanedDice}\nComponenti: ${totalString}\nRisultato: ${total}`)
+
+        const string = `Hai tirato ${cleanedDice}\nRisultato: ${total}\nComponenti: ${totalString}`
+
+        const limitedString = string.length > 1900 ? string.substring(0, 1900) + "..." : string
+
+        interaction.editReply(limitedString)
     }
 }
 export default command

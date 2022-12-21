@@ -34,7 +34,7 @@ const registerFlows = (...commands: Command[]) => {
                 let responses = {}
                 if (interaction.isChatInputCommand()) {
                     if (interaction.commandName === command.builder.name) {
-
+                        console.log(`[${new Date().toISOString()}] ${interaction.user.username} ha chiamato /${interaction.commandName}`)
                         let rollingInteraction: any = interaction
                         for (const step of command.steps ?? []) {
 
