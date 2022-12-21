@@ -1,6 +1,7 @@
 import { SlashCommandBuilder } from "discord.js"
+import { addCharacterToCampaign, checkCampaignExists, getCampaign, getCampaigns } from "../campaigns.js"
 import { isAdmin } from "../core.js"
-import { getCampaigns, standardCharacterAutocomplete } from "../data.js"
+import { checkCharacterExists, getLightCharacter, standardCharacterAutocomplete, userHasCharacter } from "../data.js"
 import { Command } from "../flow.js"
 
 const command: Command = {
@@ -43,7 +44,25 @@ const command: Command = {
             return
         }
 
-        await interaction.editReply({ content: `Jaaa` })
+        const characterName = originalInteraction.options.getString("personaggio")
+        const campaignName = originalInteraction.options.getString("campagna")
+
+        if (!(await checkCharacterExists(characterName))) {
+            await interaction.editReply({ content: `Errore: non esiste il personaggio '${characterName}'` })
+            return
+        }
+
+        const characterObj = await getLightCharacter(characterName)
+        if (!characterObj) {
+            await interaction.editReply({ content: `Errore: non esiste la campagna '${campaignName}'` })
+            return
+        }
+
+        const campaign = await getCampaign(campaignName)
+
+        await addCharacterToCampaign(characterName, characterObj.user, campaignName)
+
+        await interaction.editReply({ content: `${characterName} aggiunto con successo a ${campaignName}` })
     }
 }
 export default command

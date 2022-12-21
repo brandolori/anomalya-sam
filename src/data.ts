@@ -1,71 +1,6 @@
 import { AutocompleteInteraction } from "discord.js"
-import pkg from 'mongodb'
-const { MongoClient } = pkg
 import { isAdmin } from "./core.js"
-
-const uri =
-    "mongodb://127.0.0.1:27017"
-const client = new MongoClient(uri, { useUnifiedTopology: true })
-await client.connect()
-const database = client.db('anomalya')
-const equipment = database.collection('equipment')
-const characters = database.collection('characters')
-const campaigns = database.collection('campaigns')
-const players = database.collection('players')
-
-await characters.createIndex({ name: 1, user: 1 })
-await equipment.createIndex({ name: 1, index: 1 })
-
-type Character = {
-    name: string,
-    race: string,
-    strength: number,
-    dexterity: number,
-    constitution: number,
-    intelligence: number,
-    winsdom: number,
-    charisma: number,
-    description: string,
-    inventory: EquipmentInInventory[]
-    user: string,
-    picture: any
-}
-
-type Equipment = {
-    name: string,
-    index: string,
-    weight: number,
-    cost: { quantity: number, unit: "gp" | "sp" | "bp" }
-}
-
-type EquipmentInInventory = {
-    equipment: string,
-    location: string,
-    amount: number
-}
-
-type IndexCharacter = { name: string, user: string }
-
-type LightCharacter = Omit<Character, "inventory" | "picture">
-
-type Campaign = {
-    name: string
-    description: string,
-    characters: IndexCharacter[]
-}
-
-const createCampaign = async (name: string, description: string) => {
-    if ((await campaigns.countDocuments({ name })) > 0)
-        throw new Error(`Campagna '${name}' già esistente! Prova con un'altro nome`)
-
-    return campaigns.insertOne({ name, description, characters: [] })
-}
-
-const getCampaigns = async () => {
-    const response = campaigns.find().toArray()
-
-    return response as unknown as Campaign[]
-}
+import { characters, equipment, Character, Equipment, EquipmentInInventory, IndexCharacter, LightCharacter } from "./database.js"
 
 const getUserCharacters = async (userId: string) => {
     const response = await characters.find({ user: userId }, { projection: { _id: false, name: true, user: true } }).toArray()
@@ -411,7 +346,5 @@ export {
     standardCharacterAutocomplete,
     removeCoins,
     addCoins,
-    getLightCharacter,
-    createCampaign,
-    getCampaigns
+    getLightCharacter
 }
