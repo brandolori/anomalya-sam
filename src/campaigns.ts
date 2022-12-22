@@ -1,4 +1,5 @@
-import { campaigns, IndexCharacter } from "./database.js"
+import { isAdmin } from "./core.js"
+import { campaigns, IndexCharacter, players } from "./database.js"
 
 type Campaign = {
     name: string
@@ -10,7 +11,7 @@ const createCampaign = async (name: string, description: string) => {
     if ((await campaigns.countDocuments({ name })) > 0)
         throw new Error(`Campagna '${name}' già esistente! Prova con un'altro nome`)
 
-    return campaigns.insertOne({ name, description, characters: [] })
+    return campaigns.insertOne({ name, description })
 }
 
 const getCampaigns = async () => {
@@ -19,8 +20,26 @@ const getCampaigns = async () => {
     return response as unknown as Campaign[]
 }
 
+const getPlayerCampaigns = async (userId: string) => {
+    const response = await players.findOne({ id: userId }, { projection: { _id: false, campaigns: true } })
+
+    return response?.campaigns as unknown as string[]
+}
+
+const addCampaignToPlayer = async (campaignId: string, userId: string) => {
+    const response = await players.updateOne({ userId: userId },
+        {
+            $push:
+            {
+                campaigns: campaignId
+            }
+        })
+
+    return response
+}
+
 const getCampaign = async (campaignName: string) => {
-    const response = campaigns.findOne({ name: campaignName }, { projection: { _id: false, name: true } })
+    const response = campaigns.findOne({ name: campaignName })
 
     return response as unknown as Campaign
 }
@@ -43,4 +62,13 @@ const addCharacterToCampaign = async (characterName: string, ownerUser: string, 
         })
 }
 
-export { createCampaign, getCampaigns, checkCampaignExists, addCharacterToCampaign, getCampaign }
+const playerHasCampaign = async (userId: string, campaignName: string) => {
+    if (isAdmin(userId))
+        return (await campaigns.countDocuments({ name: campaignName }))
+
+    const playerCampaings = await getPlayerCampaigns(userId)
+
+    return playerCampaings?.includes(campaignName)
+}
+
+export { createCampaign, getCampaigns, checkCampaignExists, addCharacterToCampaign, getCampaign, getPlayerCampaigns, addCampaignToPlayer, playerHasCampaign }

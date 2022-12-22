@@ -1,8 +1,9 @@
 import { SlashCommandBuilder } from "discord.js"
-import { addCharacterToCampaign, checkCampaignExists, getCampaign, getCampaigns } from "../campaigns.js"
+import { addCampaignToPlayer, addCharacterToCampaign, checkCampaignExists, getCampaign, getCampaigns, getPlayerCampaigns } from "../campaigns.js"
 import { isAdmin } from "../core.js"
 import { checkCharacterExists, getLightCharacter, standardCharacterAutocomplete, userHasCharacter } from "../data.js"
 import { Command } from "../flow.js"
+import { createPlayer, getPlayer } from "../players.js"
 
 const command: Command = {
     builder: new SlashCommandBuilder()
@@ -47,22 +48,38 @@ const command: Command = {
         const characterName = originalInteraction.options.getString("personaggio")
         const campaignName = originalInteraction.options.getString("campagna")
 
-        if (!(await checkCharacterExists(characterName))) {
-            await interaction.editReply({ content: `Errore: non esiste il personaggio '${characterName}'` })
-            return
-        }
-
         const characterObj = await getLightCharacter(characterName)
         if (!characterObj) {
-            await interaction.editReply({ content: `Errore: non esiste la campagna '${campaignName}'` })
+            await interaction.editReply({ content: `Errore: non esiste il personaggio '${characterName}!'` })
             return
         }
 
         const campaign = await getCampaign(campaignName)
+        if (!campaign) {
+            await interaction.editReply({ content: `Errore: non esiste la campagna '${campaignName}!'` })
+            return
+        }
+
+        if (campaign.characters?.some(e => e.name == characterName)) {
+            await interaction.editReply({ content: `Errore: ${characterName} è già presente in ${campaignName}!` })
+            return
+        }
 
         await addCharacterToCampaign(characterName, characterObj.user, campaignName)
 
-        await interaction.editReply({ content: `${characterName} aggiunto con successo a ${campaignName}` })
+        const player = await getPlayer(interaction.user.id)
+        let newPlayerCreated = false
+
+        if (!player) {
+            await createPlayer(interaction.user.id)
+            newPlayerCreated = true
+        }
+
+        if (newPlayerCreated || !player.campaigns?.includes(campaignName)) {
+            await addCampaignToPlayer(campaignName, interaction.user.id)
+        }
+
+        await interaction.editReply({ content: `${characterName} aggiunto con successo a ${campaignName}!` })
     }
 }
 export default command

@@ -1,5 +1,5 @@
-import pkg from 'mongodb'
-const { MongoClient } = pkg
+import mongo from 'mongodb'
+const { MongoClient } = mongo
 export type Character = {
     name: string,
     race: string,
@@ -43,5 +43,8 @@ const players = database.collection('players')
 await characters.createIndex({ name: 1, user: 1 })
 await equipment.createIndex({ name: 1, index: 1 })
 await campaigns.createIndex({ name: 1 })
+await players.createIndex({ userId: 1 })
+
+console.log("mongo loaded")
 
 export { equipment, characters, campaigns, players }

@@ -26,7 +26,7 @@ const command: Command = {
 
         try {
             await createCampaign(campaignName, campaignDescription)
-            interaction.followUp({ content: `${campaignName} creata correttamente!\n Comincia ad aggiungere personaggi con **/uniscipersonaggio**`, ephemeral: true })
+            interaction.followUp({ content: `${campaignName} creata correttamente!\nComincia ad aggiungere personaggi con **/uniscipersonaggio**`, ephemeral: true })
         } catch (e) {
             interaction.followUp({ content: `Errore: ${e.message}!`, ephemeral: true })
         }

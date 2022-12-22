@@ -22,6 +22,7 @@ import modificadescrizione from './commands/modificadescrizione.js'
 import info from './commands/info.js'
 import apricampagna from './commands/apricampagna.js'
 import uniscipersonaggio from './commands/uniscipersonaggio.js'
+import campagna from './commands/campagna.js'
 
 registerFlows(
     crea,
@@ -41,7 +42,8 @@ registerFlows(
     spendi,
     info,
     apricampagna,
-    uniscipersonaggio
+    uniscipersonaggio,
+    campagna
 )
 
 // caricamento immagine personaggio
