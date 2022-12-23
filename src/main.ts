@@ -23,6 +23,8 @@ import info from './commands/info.js'
 import apricampagna from './commands/apricampagna.js'
 import uniscipersonaggio from './commands/uniscipersonaggio.js'
 import campagna from './commands/campagna.js'
+import campagne from './commands/campagne.js'
+import rimuovipersonaggio from './commands/rimuovipersonaggio.js'
 
 registerFlows(
     crea,
@@ -43,7 +45,9 @@ registerFlows(
     info,
     apricampagna,
     uniscipersonaggio,
-    campagna
+    campagna,
+    campagne,
+    rimuovipersonaggio
 )
 
 // caricamento immagine personaggio

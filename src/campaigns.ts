@@ -15,7 +15,7 @@ const createCampaign = async (name: string, description: string) => {
 }
 
 const getCampaigns = async () => {
-    const response = campaigns.find({}, { projection: { _id: false, name: true } }).toArray()
+    const response = campaigns.find({}).toArray()
 
     return response as unknown as Campaign[]
 }
@@ -30,6 +30,18 @@ const addCampaignToPlayer = async (campaignId: string, userId: string) => {
     const response = await players.updateOne({ userId: userId },
         {
             $push:
+            {
+                campaigns: campaignId
+            }
+        })
+
+    return response
+}
+
+const removeCampaignFromPlayer = async (campaignId: string, userId: string) => {
+    const response = await players.updateOne({ userId: userId },
+        {
+            $pull:
             {
                 campaigns: campaignId
             }
@@ -62,6 +74,20 @@ const addCharacterToCampaign = async (characterName: string, ownerUser: string, 
         })
 }
 
+const removeCharacterFromCampaign = async (characterName: string, ownerUser: string, campaignName: string) => {
+    return campaigns.updateOne({ name: campaignName },
+        {
+            $pull:
+            {
+                characters:
+                {
+                    user: ownerUser,
+                    name: characterName
+                }
+            }
+        })
+}
+
 const playerHasCampaign = async (userId: string, campaignName: string) => {
     if (isAdmin(userId))
         return (await campaigns.countDocuments({ name: campaignName }))
@@ -71,4 +97,15 @@ const playerHasCampaign = async (userId: string, campaignName: string) => {
     return playerCampaings?.includes(campaignName)
 }
 
-export { createCampaign, getCampaigns, checkCampaignExists, addCharacterToCampaign, getCampaign, getPlayerCampaigns, addCampaignToPlayer, playerHasCampaign }
+export {
+    createCampaign,
+    getCampaigns,
+    checkCampaignExists,
+    addCharacterToCampaign,
+    getCampaign,
+    getPlayerCampaigns,
+    addCampaignToPlayer,
+    playerHasCampaign,
+    removeCharacterFromCampaign,
+    removeCampaignFromPlayer
+}

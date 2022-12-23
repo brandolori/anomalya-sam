@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "discord.js"
-import { addCampaignToPlayer, addCharacterToCampaign, checkCampaignExists, getCampaign, getCampaigns, getPlayerCampaigns } from "../campaigns.js"
+import { addCampaignToPlayer, addCharacterToCampaign, checkCampaignExists, getCampaign, getCampaigns, getPlayerCampaigns, removeCampaignFromPlayer, removeCharacterFromCampaign } from "../campaigns.js"
 import { isAdmin } from "../core.js"
 import { checkCharacterExists, getCharacter, getLightCharacter, standardCharacterAutocomplete, userHasCharacter } from "../data.js"
 import { Command } from "../flow.js"
@@ -7,20 +7,19 @@ import { createPlayer, getPlayer } from "../players.js"
 
 const command: Command = {
     builder: new SlashCommandBuilder()
-        .setName("uniscipersonaggio")
-        .setDescription("Unisci un personaggio ad una campagna")
+        .setName("rimuovipersonaggio")
+        .setDescription("Rimuovi un personaggio da una campagna")
         .addStringOption(option =>
             option.setName("personaggio")
-                .setDescription("Il personaggio da aggiungere alla campagna")
+                .setDescription("Il personaggio da rimuovere dalla campagna")
                 .setAutocomplete(true)
                 .setRequired(true))
         .addStringOption(option =>
             option.setName("campagna")
-                .setDescription("La campagna a cui aggiungere il personaggio")
+                .setDescription("La campagna da cui rimuovere il personaggio")
                 .setAutocomplete(true)
                 .setRequired(true)),
     autocomplete: async (interaction) => {
-
         const focusedOption = interaction.options.getFocused(true)
 
         if (focusedOption.name === "personaggio") {
@@ -60,27 +59,24 @@ const command: Command = {
             return
         }
 
-        if (campaign.characters?.some(e => e.name == characterName)) {
-            await interaction.editReply({ content: `Errore: ${characterName} è già presente in ${campaignName}!` })
+        if (!campaign.characters || !campaign.characters.some(e => e.name == characterName)) {
+            await interaction.editReply({ content: `Errore: ${characterName} non fa parte di ${campaignName}!` })
             return
         }
 
-        await addCharacterToCampaign(characterName, characterObj.user, campaignName)
+        await removeCharacterFromCampaign(characterName, characterObj.user, campaignName)
 
         const character = await getCharacter(characterName)
         const player = await getPlayer(character.user)
-        let newPlayerCreated = false
 
-        if (!player) {
-            await createPlayer(character.user)
-            newPlayerCreated = true
+        const playerHasOtherCharactersInCampaign = campaign.characters.filter((el) => el.name != characterName)
+            .some((el) => el.user == player.userId)
+
+        if (!playerHasOtherCharactersInCampaign) {
+            await removeCampaignFromPlayer(campaignName, player.userId)
         }
 
-        if (newPlayerCreated || !player.campaigns?.includes(campaignName)) {
-            await addCampaignToPlayer(campaignName, character.user)
-        }
-
-        await interaction.editReply({ content: `${characterName} aggiunto con successo a ${campaignName}!` })
+        await interaction.editReply({ content: `${characterName} rimosso con successo da ${campaignName}!` })
     }
 }
 export default command
