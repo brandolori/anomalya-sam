@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "discord.js"
-import { createCampaign, getCampaign, getCampaigns, playerHasCampaign } from "../campaigns.js"
+import { createCampaign, getCampaign, getCampaigns, getPlayerCampaigns, playerHasCampaign } from "../campaigns.js"
 import { isAdmin } from "../core.js"
 import { Command } from "../flow.js"
 
@@ -14,7 +14,8 @@ const command: Command = {
                 .setRequired(true)),
     autocomplete: async (interaction) => {
         const focusedValue = interaction.options.getFocused()
-        const choices = (await getCampaigns()).map(el => el.name).slice(0, 24)
+        
+        const choices = isAdmin(interaction.user.id)(await getPlayerCampaigns(interaction.user.id)).slice(0, 24)
         const filtered = choices.filter(choice => choice.toLowerCase().includes(focusedValue.toLowerCase()))
         await interaction.respond(
             filtered.map(choice => ({ name: choice, value: choice })),
@@ -25,7 +26,7 @@ const command: Command = {
 
         const campaignName = originalInteraction.options.getString("campagna")
 
-        if (!playerHasCampaign(interaction.user.id, campaignName)) {
+        if (!(await playerHasCampaign(interaction.user.id, campaignName))) {
             await interaction.editReply({ content: `Errore: non esiste una campagna chiamata ${campaignName}` })
             return
         }
