@@ -31,10 +31,10 @@ const command: Command = {
         }
 
         const campaign = await getCampaign(campaignName)
-        console.table(campaign)
-        const characterString = campaign.characters.map(el => `${el.name}\n<@${el.user}>`).join("\n\n")
 
-        interaction.editReply({ content: `Nome: ${campaignName}\n\nDescrizione:\n_${campaign.description}_\nPersonaggi:\n${characterString}` })
+        const characterString = campaign.characters?.map(el => `${el.name}\n<@${el.user}>`).join("\n\n") ?? ""
+
+        interaction.editReply({ content: `Nome: ${campaignName}\n\nDescrizione:\n_${campaign.description}_\n\nPersonaggi:\n${characterString}` })
     }
 }
 export default command
