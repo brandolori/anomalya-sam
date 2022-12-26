@@ -14,8 +14,10 @@ const command: Command = {
                 .setRequired(true)),
     autocomplete: async (interaction) => {
         const focusedValue = interaction.options.getFocused()
-        
-        const choices = isAdmin(interaction.user.id)(await getPlayerCampaigns(interaction.user.id)).slice(0, 24)
+
+        const choices = isAdmin(interaction.user.id)
+            ? (await getCampaigns()).map(el => el.name)
+            : (await getPlayerCampaigns(interaction.user.id)).slice(0, 24)
         const filtered = choices.filter(choice => choice.toLowerCase().includes(focusedValue.toLowerCase()))
         await interaction.respond(
             filtered.map(choice => ({ name: choice, value: choice })),
