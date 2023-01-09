@@ -1,6 +1,6 @@
 import { AttachmentBuilder, EmbedBuilder, SlashCommandBuilder } from "discord.js"
 import { isAdmin } from "../core.js"
-import { getCharacter, standardCharacterAutocomplete, userHasCharacter } from "../data.js"
+import { getCharacter, standardCharacterAutocomplete, userHasCharacter } from "../characters.js"
 import { Command } from "../flow.js"
 
 const command: Command = {

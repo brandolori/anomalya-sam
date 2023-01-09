@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from "discord.js"
 import { addCampaignToPlayer, addCharacterToCampaign, checkCampaignExists, getCampaign, getCampaigns, getPlayerCampaigns, removeCampaignFromPlayer, removeCharacterFromCampaign } from "../campaigns.js"
 import { isAdmin } from "../core.js"
-import { checkCharacterExists, getCharacter, getLightCharacter, standardCharacterAutocomplete, userHasCharacter } from "../data.js"
+import { checkCharacterExists, getCharacter, getLightCharacter, standardCharacterAutocomplete, userHasCharacter } from "../characters.js"
 import { Command } from "../flow.js"
 import { createPlayer, getPlayer } from "../players.js"
 

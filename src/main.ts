@@ -14,7 +14,7 @@ import { client } from './core.js'
 import { ChannelType } from 'discord.js'
 import fetch from 'node-fetch'
 import sharp from "sharp"
-import { getUserCharacters, updateCharacter } from './data.js'
+import { getUserCharacters, updateCharacter } from './characters.js'
 import portafoglio from './commands/portafoglio.js'
 import giocatore from './commands/giocatore.js'
 import spendi from './commands/spendi.js'

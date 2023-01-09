@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "discord.js"
-import { createCampaign, getCampaign, getCampaigns, getPlayerCampaigns, playerHasCampaign } from "../campaigns.js"
+import { getCampaign, getCampaigns, getPlayerCampaigns, playerHasCampaign } from "../campaigns.js"
 import { isAdmin } from "../core.js"
 import { Command } from "../flow.js"
 
