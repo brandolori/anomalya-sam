@@ -14,6 +14,10 @@ const createCampaign = async (name: string, description: string) => {
     return campaigns.insertOne({ name, description })
 }
 
+const deleteCampaign = async (name: string) => {
+    return campaigns.deleteOne({ name })
+}
+
 const getCampaigns = async () => {
     const response = campaigns.find({}).toArray()
 
@@ -21,7 +25,7 @@ const getCampaigns = async () => {
 }
 
 const getPlayerCampaigns = async (userId: string) => {
-    const response = await players.findOne({ id: userId }, { projection: { _id: false, campaigns: true } })
+    const response = await players.findOne({ userId }, { projection: { _id: false, campaigns: true } })
 
     return response?.campaigns as unknown as string[]
 }
@@ -107,5 +111,6 @@ export {
     addCampaignToPlayer,
     playerHasCampaign,
     removeCharacterFromCampaign,
-    removeCampaignFromPlayer
+    removeCampaignFromPlayer,
+    deleteCampaign
 }

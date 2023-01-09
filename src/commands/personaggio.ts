@@ -27,7 +27,6 @@ const command: Command = {
         }
 
         const character = await getCharacter(characterName)
-        const calledByAdmin = isAdmin(interaction.user.id)
 
         let files = []
         let embeds = []
@@ -42,7 +41,9 @@ CON: ${character.constitution}
 INT: ${character.intelligence}
 WIS: ${character.winsdom}
 CHA: ${character.charisma}
-${calledByAdmin ? `\nProprietario: <@${character.user}>\n` : ""}
+
+Proprietario: <@${character.user}>
+
 _${character.description ?? "Nessuna descrizione fornita"}_`)
 
         if (character.picture) {
