@@ -1,6 +1,6 @@
 import { AttachmentBuilder, EmbedBuilder, SlashCommandBuilder } from "discord.js"
 import { isAdmin } from "../core.js"
-import { getCharacter, standardCharacterAutocomplete, userHasCharacter } from "../characters.js"
+import { getAllCharacters, getCharacter, getReadableCharacters, userCanReadCharacter } from "../characters.js"
 import { Command } from "../flow.js"
 
 const command: Command = {
@@ -14,15 +14,24 @@ const command: Command = {
                 .setRequired(true)),
     autocomplete: async (interaction) => {
         const focusedValue = interaction.options.getFocused()
-        await standardCharacterAutocomplete(focusedValue, interaction)
+        const choices = isAdmin(interaction.user.id)
+            ? (await getAllCharacters()).map(el => el.name)
+            : await getReadableCharacters(interaction.user.id)
+
+        const filtered = choices.filter(choice => choice.toLowerCase().includes(focusedValue.toLowerCase())).slice(0, 25)
+        try {
+            await interaction.respond(
+                filtered.map(choice => ({ name: choice, value: choice })),
+            )
+        } catch (e) { }
     },
     callback: async (interaction, _, originalInteraction) => {
         await interaction.deferReply({ ephemeral: true })
 
         const characterName = originalInteraction.options.getString("personaggio")
 
-        if (!(await userHasCharacter(interaction.user.id, characterName))) {
-            await interaction.editReply({ content: `Errore: non esiste il personaggio '${characterName}` })
+        if (!(await userCanReadCharacter(interaction.user.id, characterName))) {
+            await interaction.editReply({ content: `Errore: non esiste il personaggio '${characterName}'` })
             return
         }
 

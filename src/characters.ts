@@ -1,4 +1,5 @@
 import { AutocompleteInteraction } from "discord.js"
+import { getCampaign, getPlayerCampaigns } from "./campaigns.js"
 import { isAdmin } from "./core.js"
 import { characters, Character, IndexCharacter, LightCharacter } from "./database.js"
 
@@ -6,6 +7,17 @@ const getUserCharacters = async (userId: string) => {
     const response = await characters.find({ user: userId }, { projection: { _id: false, name: true, user: true } }).toArray()
 
     return response as unknown as IndexCharacter[]
+}
+
+const getReadableCharacters = async (userId: string) => {
+    const userCharacters = (await getUserCharacters(userId)).map(el => el.name)
+    const campaignNames = await getPlayerCampaigns(userId)
+    const campaigns = await Promise.all(campaignNames.map(async el => await getCampaign(el)))
+    const campaignCharacters = campaigns.map(el => el.characters).flat().map(el => el.name)
+
+    const characters = new Set([...campaignCharacters, ...userCharacters])
+
+    return [...characters]
 }
 
 const getAllCharacters = async () => {
@@ -33,17 +45,25 @@ const getLightCharacter = async (characterName: string) => {
                 intelligence: true,
                 winsdom: true,
                 charisma: true,
-                picture: false
             }
         })
     return response as unknown as LightCharacter
 }
 
-const userHasCharacter = async (userId: string, characterName: string) => {
+const userCanWriteCharacter = async (userId: string, characterName: string) => {
     if (isAdmin(userId))
         return (await characters.countDocuments({ name: characterName })) > 0
     else
         return (await characters.countDocuments({ name: characterName, user: userId })) > 0
+}
+
+const userCanReadCharacter = async (userId: string, characterName: string) => {
+    if (isAdmin(userId))
+        return (await characters.countDocuments({ name: characterName })) > 0
+    else {
+        const readableCharacters = await getReadableCharacters(userId)
+        return readableCharacters.includes(characterName)
+    }
 }
 
 const removeCharacter = async (name: string) => {
@@ -68,7 +88,7 @@ const standardCharacterAutocomplete = async (inputValue: string, interaction: Au
         : await getUserCharacters(interaction.user.id)
 
     const choices = characters.map(el => el.name)
-    const filtered = choices.filter(choice => choice.toLowerCase().includes(inputValue.toLowerCase()))
+    const filtered = choices.filter(choice => choice.toLowerCase().includes(inputValue.toLowerCase())).slice(0, 25)
     try {
         await interaction.respond(
             filtered.map(choice => ({ name: choice, value: choice })),
@@ -94,7 +114,7 @@ const Races = [
 
 export {
     Character,
-    userHasCharacter,
+    userCanWriteCharacter as userHasCharacter,
     getUserCharacters,
     getAllCharacters,
     getCharacter,
@@ -104,5 +124,7 @@ export {
     standardCharacterAutocomplete,
     getLightCharacter,
     checkCharacterExists,
+    getReadableCharacters,
+    userCanReadCharacter,
     Races
 }
