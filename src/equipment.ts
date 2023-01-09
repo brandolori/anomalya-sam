@@ -1,4 +1,4 @@
-import { characters, equipment, Character, Equipment, EquipmentInInventory, IndexCharacter } from "./database.js"
+import { characters, equipment, Character, Equipment, EquipmentInInventory } from "./database.js"
 
 const getEquipmentNames = async () => {
     const response = await equipment.find({}, { projection: { _id: false, name: true } }).map(el => el.name).toArray()
