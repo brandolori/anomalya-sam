@@ -33,7 +33,7 @@ const getLightCharacter = async (characterName: string) => {
                 intelligence: true,
                 winsdom: true,
                 charisma: true,
-                picture: true
+                picture: false
             }
         })
     return response as unknown as LightCharacter
