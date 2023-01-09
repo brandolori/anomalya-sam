@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from "discord.js"
 import { Money } from "../common.js"
-import { getEquipmentData, getEquipmentNames } from "../data.js"
+import { getEquipmentData, getEquipmentNames } from "../equipment.js"
 import { Command } from "../flow.js"
 
 const command: Command = {

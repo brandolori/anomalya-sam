@@ -1,6 +1,6 @@
 import { AutocompleteInteraction } from "discord.js"
 import { isAdmin } from "./core.js"
-import { characters, equipment, Character, Equipment, EquipmentInInventory, IndexCharacter, LightCharacter } from "./database.js"
+import { characters, Character, IndexCharacter, LightCharacter } from "./database.js"
 
 const getUserCharacters = async (userId: string) => {
     const response = await characters.find({ user: userId }, { projection: { _id: false, name: true, user: true } }).toArray()

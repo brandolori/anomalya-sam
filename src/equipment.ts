@@ -1,18 +1,4 @@
-import { AutocompleteInteraction } from "discord.js"
-import { isAdmin } from "./core.js"
-import { characters, equipment, Character, Equipment, EquipmentInInventory, IndexCharacter, LightCharacter } from "./database.js"
-
-const getUserCharacters = async (userId: string) => {
-    const response = await characters.find({ user: userId }, { projection: { _id: false, name: true, user: true } }).toArray()
-
-    return response as unknown as IndexCharacter[]
-}
-
-const getAllCharacters = async () => {
-    const response = await characters.find({}, { projection: { _id: false, name: true, user: true } }).toArray()
-
-    return response as unknown as IndexCharacter[]
-}
+import { characters, equipment, Character, Equipment, EquipmentInInventory, IndexCharacter } from "./database.js"
 
 const getEquipmentNames = async () => {
     const response = await equipment.find({}, { projection: { _id: false, name: true } }).map(el => el.name).toArray()
