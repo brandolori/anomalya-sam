@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "discord.js"
-import { createCampaign, deleteCampaign, getCampaign, getCampaigns, getPlayerCampaigns, removeCampaignFromPlayer } from "../campaigns.js"
+import { deleteCampaign, getCampaign, getCampaigns, getPlayerCampaigns, removeCampaignFromPlayer } from "../campaigns.js"
 import { isAdmin } from "../core.js"
 import { Command } from "../flow.js"
 
@@ -26,12 +26,8 @@ const command: Command = {
     steps: [
         { name: "name", type: "input", prompt: ["Conferma il nome della campagna"] },
     ],
+    adminOnly: true,
     callback: async (interaction, data, originalInteraction) => {
-
-        if (!isAdmin(interaction.user.id)) {
-            await interaction.followUp({ content: `Oooops! Questo comando è solo per i DM`, ephemeral: true })
-            return
-        }
 
         const campaignName = originalInteraction.options.getString("nome")
         const confirmName = data.name

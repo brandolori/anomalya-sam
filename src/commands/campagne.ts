@@ -7,13 +7,9 @@ const command: Command = {
     builder: new SlashCommandBuilder()
         .setName("campagne")
         .setDescription("Mostra tutte le campagne"),
+    adminOnly: true,
     callback: async (interaction) => {
         await interaction.deferReply({ ephemeral: true })
-
-        if (!isAdmin(interaction.user.id)) {
-            await interaction.editReply({ content: `Oooops! Questo comando è solo per i DM` })
-            return
-        }
 
         const campaigns = await getCampaigns()
         const campaignsString = campaigns.map(el =>

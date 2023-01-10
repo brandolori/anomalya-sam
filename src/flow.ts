@@ -1,6 +1,6 @@
 import { ActionRowBuilder, AutocompleteInteraction, ChatInputCommandInteraction, Interaction, ModalBuilder, ModalSubmitInteraction, SelectMenuBuilder, SelectMenuInteraction, TextInputBuilder, TextInputStyle } from "discord.js"
 import { v4 } from "uuid"
-import { client, registerCommands } from "./core.js"
+import { client, isAdmin, registerCommands } from "./core.js"
 
 const timeout = 120_000
 
@@ -21,6 +21,7 @@ export type Command = {
     callback: (interaction: ChatInputCommandInteraction, data?: any, originalInteraction?: ChatInputCommandInteraction) => void,
     steps?: Step[],
     autocomplete?: (interaction: AutocompleteInteraction) => void,
+    adminOnly?: boolean
 }
 
 const registerFlows = (...commands: Command[]) => {
@@ -35,6 +36,12 @@ const registerFlows = (...commands: Command[]) => {
                 if (interaction.isChatInputCommand()) {
                     if (interaction.commandName === command.builder.name) {
                         console.log(`[${new Date().toISOString()}] ${interaction.user.username} ha chiamato /${interaction.commandName}`)
+
+                        if (command.adminOnly && !isAdmin(interaction.user.id)) {
+                            await interaction.reply({ content: `Oooops! Questo comando è solo per i DM`, ephemeral: true })
+                            return
+                        }
+
                         let rollingInteraction: any = interaction
                         for (const step of command.steps ?? []) {
 

@@ -14,12 +14,8 @@ const command: Command = {
     steps: [
         { name: "description", type: "input", prompt: ["Inserisci una descrizione della campagna"] },
     ],
+    adminOnly: true,
     callback: async (interaction, data, originalInteraction) => {
-
-        if (!isAdmin(interaction.user.id)) {
-            await interaction.followUp({ content: `Oooops! Questo comando è solo per i DM`, ephemeral: true })
-            return
-        }
 
         const campaignName = originalInteraction.options.getString("nome")
         const campaignDescription = data.description[0]

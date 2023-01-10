@@ -36,13 +36,9 @@ const command: Command = {
             } catch (e) { }
         }
     },
+    adminOnly: true,
     callback: async (interaction, _, originalInteraction) => {
         await interaction.deferReply({ ephemeral: true })
-
-        if (!isAdmin(interaction.user.id)) {
-            await interaction.editReply({ content: `Oooops! Questo comando è solo per i DM` })
-            return
-        }
 
         const characterName = originalInteraction.options.getString("personaggio")
         const campaignName = originalInteraction.options.getString("campagna")
