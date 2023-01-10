@@ -1,6 +1,5 @@
 import { SlashCommandBuilder } from "discord.js"
 import { getCampaigns } from "../campaigns.js"
-import { isAdmin } from "../core.js"
 import { Command } from "../flow.js"
 
 const command: Command = {
