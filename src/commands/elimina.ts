@@ -27,13 +27,13 @@ const command: Command = {
             await interaction.followUp({ content: `Eliminazione non andata a buon fine: nessun personaggio trovato con questo nome`, ephemeral: true })
             return
         }
-        if (characterName == confirmName) {
-            await removeCharacter(characterName)
-
-            interaction.followUp({ content: `${characterName} eliminato correttamente`, ephemeral: true })
-        } else {
-            interaction.followUp({ content: `Eliminazione non andata a buon fine: il nome inserito non corrisponde`, ephemeral: true })
+        if (characterName != confirmName) {
+            await interaction.followUp({ content: `Eliminazione non andata a buon fine: il nome inserito non corrisponde`, ephemeral: true })
+            return
         }
+
+        await removeCharacter(characterName)
+        await interaction.followUp({ content: `${characterName} eliminato correttamente`, ephemeral: true })
     }
 }
 export default command

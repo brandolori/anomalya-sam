@@ -26,7 +26,7 @@ const command: Command = {
     steps: [
         { name: "name", type: "input", prompt: ["Conferma il nome della campagna"] },
     ],
-    callback: async (interaction, _, originalInteraction) => {
+    callback: async (interaction, data, originalInteraction) => {
 
         if (!isAdmin(interaction.user.id)) {
             await interaction.followUp({ content: `Oooops! Questo comando è solo per i DM`, ephemeral: true })
@@ -34,11 +34,17 @@ const command: Command = {
         }
 
         const campaignName = originalInteraction.options.getString("nome")
+        const confirmName = data.name
 
         const campaign = await getCampaign(campaignName)
 
         if (!campaign) {
             await interaction.followUp({ content: `Errore! La campagna '${campaignName}' non esiste`, ephemeral: true })
+            return
+        }
+
+        if (campaignName != confirmName) {
+            await interaction.followUp({ content: `Eliminazione non andata a buon fine: il nome inserito non corrisponde`, ephemeral: true })
             return
         }
 
