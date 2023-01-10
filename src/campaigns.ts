@@ -21,13 +21,13 @@ const deleteCampaign = async (name: string) => {
 const getCampaigns = async () => {
     const response = campaigns.find({}).toArray()
 
-    return response as unknown as Campaign[]
+    return response ?? [] as unknown as Campaign[]
 }
 
 const getPlayerCampaigns = async (userId: string) => {
     const response = await players.findOne({ userId }, { projection: { _id: false, campaigns: true } })
 
-    return response?.campaigns as unknown as string[]
+    return response?.campaigns ?? [] as unknown as string[]
 }
 
 const addCampaignToPlayer = async (campaignId: string, userId: string) => {
