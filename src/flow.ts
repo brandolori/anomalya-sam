@@ -28,43 +28,50 @@ const registerFlows = (...commands: Command[]) => {
 
     registerCommands(commands.map(el => el.builder))
 
-    commands.forEach(command => {
+    const commandMap: { [key: string]: Command } = {}
+    commands.forEach(command => commandMap[command.builder.name] = command)
 
-        client.on('interactionCreate', async interaction => {
-            try {
+    client.on('interactionCreate', async interaction => {
+        try {
+            if (interaction.isChatInputCommand()) {
+                const command = commandMap[interaction.commandName]
+                if (!command)
+                    return
+
+                console.log(`[${new Date().toISOString()}] ${interaction.user.username} ha chiamato /${interaction.commandName}`)
+
+                if (command.adminOnly && !isAdmin(interaction.user.id)) {
+                    await interaction.reply({ content: `Oooops! Questo comando è solo per i DM`, ephemeral: true })
+                    return
+                }
+
                 let responses = {}
-                if (interaction.isChatInputCommand()) {
-                    if (interaction.commandName === command.builder.name) {
-                        console.log(`[${new Date().toISOString()}] ${interaction.user.username} ha chiamato /${interaction.commandName}`)
+                let rollingInteraction: any = interaction
+                for (const step of command.steps ?? []) {
 
-                        if (command.adminOnly && !isAdmin(interaction.user.id)) {
-                            await interaction.reply({ content: `Oooops! Questo comando è solo per i DM`, ephemeral: true })
-                            return
-                        }
-
-                        let rollingInteraction: any = interaction
-                        for (const step of command.steps ?? []) {
-
-                            if (step.type == "input") {
-                                const { data, interaction: newInteraction } = await requestInput(rollingInteraction, step.prompt)
-                                responses[step.name] = data
-                                rollingInteraction = newInteraction
-                            } else if (step.type == 'choice') {
-                                const { data, interaction: newInteraction } = await requestChoice(rollingInteraction, step.options, step.prompt)
-                                responses[step.name] = data
-                                rollingInteraction = newInteraction
-                            }
-                        }
-
-                        command.callback(rollingInteraction, responses, interaction)
-                    }
-                } else if (interaction.isAutocomplete()) {
-                    if (interaction.commandName === command.builder.name) {
-                        command.autocomplete(interaction)
+                    if (step.type == "input") {
+                        const { data, interaction: newInteraction } = await requestInput(rollingInteraction, step.prompt)
+                        responses[step.name] = data
+                        rollingInteraction = newInteraction
+                    } else if (step.type == 'choice') {
+                        const { data, interaction: newInteraction } = await requestChoice(rollingInteraction, step.options, step.prompt)
+                        responses[step.name] = data
+                        rollingInteraction = newInteraction
                     }
                 }
-            } catch (e) { console.log(`Flow interrupted: ${e}`) }
-        })
+
+                command.callback(rollingInteraction, responses, interaction)
+            } else if (interaction.isAutocomplete()) {
+                const command = commandMap[interaction.commandName]
+                if (!command)
+                    return
+                if (!command.autocomplete) {
+                    console.log(`Warning: an autocomplete was sent for the command ${interaction.commandName}, but no autocomplete was registered`)
+                    return
+                }
+                command.autocomplete(interaction)
+            }
+        } catch (e) { console.log(`Flow interrupted: ${e}`) }
     })
 
 }

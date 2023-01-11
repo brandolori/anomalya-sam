@@ -27,7 +27,9 @@ const getCampaigns = async () => {
 const getPlayerCampaigns = async (userId: string) => {
     const response = await players.findOne({ userId }, { projection: { _id: false, campaigns: true } })
 
-    return response?.campaigns ?? [] as unknown as string[]
+    const returnValue = response?.campaigns ?? []
+
+    return returnValue as unknown as string[]
 }
 
 const addCampaignToPlayer = async (campaignId: string, userId: string) => {
