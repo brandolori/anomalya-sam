@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "discord.js"
-import { getCampaigns } from "../campaigns.js"
+import { getAllCampaigns } from "../campaigns.js"
 import { Command } from "../flow.js"
 
 const command: Command = {
@@ -10,7 +10,7 @@ const command: Command = {
     callback: async (interaction) => {
         await interaction.deferReply({ ephemeral: true })
 
-        const campaigns = await getCampaigns()
+        const campaigns = await getAllCampaigns()
         const campaignsString = campaigns.map(el =>
             `Nome: ${el.name}\nNumero giocatori: ${el.characters?.length ?? 0}`
         ).join("\n\n")

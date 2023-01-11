@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "discord.js"
-import { getCampaign, getCampaigns, getPlayerCampaigns, playerHasCampaign } from "../campaigns.js"
+import { getCampaign, getAllCampaigns, getPlayerCampaigns, playerHasCampaign } from "../campaigns.js"
 import { isAdmin } from "../core.js"
 import { Command } from "../flow.js"
 
@@ -16,7 +16,7 @@ const command: Command = {
         const focusedValue = interaction.options.getFocused()
 
         const choices = isAdmin(interaction.user.id)
-            ? (await getCampaigns()).map(el => el.name)
+            ? (await getAllCampaigns()).map(el => el.name)
             : (await getPlayerCampaigns(interaction.user.id)).slice(0, 24)
         const filtered = choices.filter(choice => choice.toLowerCase().includes(focusedValue.toLowerCase()))
         await interaction.respond(

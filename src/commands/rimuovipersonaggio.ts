@@ -1,8 +1,7 @@
 import { SlashCommandBuilder } from "discord.js"
-import { getCampaign, getCampaigns, removeCampaignFromPlayer, removeCharacterFromCampaign } from "../campaigns.js"
-import { getCharacter, getLightCharacter, standardCharacterAutocomplete } from "../characters.js"
+import { getCampaign, getAllCampaigns, removeCharacterFromCampaignAndUpdatePlayer } from "../campaigns.js"
+import { getLightCharacter, standardCharacterAutocomplete } from "../characters.js"
 import { Command } from "../flow.js"
-import { getPlayer } from "../players.js"
 
 const command: Command = {
     builder: new SlashCommandBuilder()
@@ -27,7 +26,7 @@ const command: Command = {
         } else if (focusedOption.name === "campagna") {
             try {
                 const focusedValue = focusedOption.value
-                const choices = (await getCampaigns()).map(el => el.name).slice(0, 24)
+                const choices = (await getAllCampaigns()).map(el => el.name).slice(0, 24)
                 const filtered = choices.filter(choice => choice.toLowerCase().includes(focusedValue.toLowerCase()))
                 await interaction.respond(
                     filtered.map(choice => ({ name: choice, value: choice })),
@@ -59,17 +58,7 @@ const command: Command = {
             return
         }
 
-        await removeCharacterFromCampaign(characterName, characterObj.user, campaignName)
-
-        const character = await getCharacter(characterName)
-        const player = await getPlayer(character.user)
-
-        const playerHasOtherCharactersInCampaign = campaign.characters.filter((el) => el.name != characterName)
-            .some((el) => el.user == player.userId)
-
-        if (!playerHasOtherCharactersInCampaign) {
-            await removeCampaignFromPlayer(campaignName, player.userId)
-        }
+        await removeCharacterFromCampaignAndUpdatePlayer(characterName, campaign)
 
         await interaction.editReply({ content: `${characterName} rimosso con successo da ${campaignName}!` })
     }

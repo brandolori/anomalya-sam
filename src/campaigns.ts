@@ -1,3 +1,4 @@
+import { getCharacter, getLightCharacter } from "./characters.js"
 import { isAdmin } from "./core.js"
 import { campaigns, IndexCharacter, players } from "./database.js"
 
@@ -18,7 +19,7 @@ const deleteCampaign = async (name: string) => {
     return campaigns.deleteOne({ name })
 }
 
-const getCampaigns = async () => {
+const getAllCampaigns = async () => {
     const response = campaigns.find({}).toArray()
 
     return response ?? [] as unknown as Campaign[]
@@ -30,6 +31,40 @@ const getPlayerCampaigns = async (userId: string) => {
     const returnValue = response?.campaigns ?? []
 
     return returnValue as unknown as string[]
+}
+
+const getCharacterCampaigns = async (characterName: string) => {
+    const aggregation = await campaigns.aggregate([
+        {
+            $unwind: "$characters"
+        },
+        {
+            $match: {
+                "characters.name": characterName
+            }
+        },
+        {
+            $project: {
+                _id: false,
+                name: true
+            }
+        }
+    ]).toArray() ?? []
+    const campaignNames = aggregation.map(el => el.name) as string[]
+    return campaignNames
+}
+
+const removeCharacterFromCampaignAndUpdatePlayer = async (characterName: string, campaign: Campaign) => {
+    await removeCharacterFromCampaign(characterName, campaign.name)
+
+    const character = await getLightCharacter(characterName)
+
+    const playerHasOtherCharactersInCampaign = campaign.characters.filter((el) => el.name != characterName)
+        .some((el) => el.user == character.user)
+
+    if (!playerHasOtherCharactersInCampaign) {
+        await removeCampaignFromPlayer(campaign.name, character.user)
+    }
 }
 
 const addCampaignToPlayer = async (campaignId: string, userId: string) => {
@@ -80,14 +115,13 @@ const addCharacterToCampaign = async (characterName: string, ownerUser: string, 
         })
 }
 
-const removeCharacterFromCampaign = async (characterName: string, ownerUser: string, campaignName: string) => {
+const removeCharacterFromCampaign = async (characterName: string, campaignName: string) => {
     return campaigns.updateOne({ name: campaignName },
         {
             $pull:
             {
                 characters:
                 {
-                    user: ownerUser,
                     name: characterName
                 }
             }
@@ -104,15 +138,17 @@ const playerHasCampaign = async (userId: string, campaignName: string) => {
 }
 
 export {
+    getCampaign,
+    getAllCampaigns,
     createCampaign,
-    getCampaigns,
+    deleteCampaign,
     checkCampaignExists,
     addCharacterToCampaign,
-    getCampaign,
     getPlayerCampaigns,
-    addCampaignToPlayer,
     playerHasCampaign,
     removeCharacterFromCampaign,
+    addCampaignToPlayer,
     removeCampaignFromPlayer,
-    deleteCampaign
+    getCharacterCampaigns,
+    removeCharacterFromCampaignAndUpdatePlayer
 }

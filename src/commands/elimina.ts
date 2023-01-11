@@ -1,4 +1,5 @@
 import { SlashCommandBuilder } from "discord.js"
+import { getCampaign, getCharacterCampaigns, removeCharacterFromCampaign, removeCharacterFromCampaignAndUpdatePlayer } from "../campaigns.js"
 import { removeCharacter, standardCharacterAutocomplete, userHasCharacter } from "../characters.js"
 import { Command } from "../flow.js"
 
@@ -31,6 +32,12 @@ const command: Command = {
             await interaction.followUp({ content: `Eliminazione non andata a buon fine: il nome inserito non corrisponde`, ephemeral: true })
             return
         }
+        const characterCampaigns = await getCharacterCampaigns(characterName)
+
+        await Promise.all(characterCampaigns.map(async campaignName => {
+            const campaign = await getCampaign(campaignName)
+            await removeCharacterFromCampaignAndUpdatePlayer(characterName, campaign)
+        }))
 
         await removeCharacter(characterName)
         await interaction.followUp({ content: `${characterName} eliminato correttamente`, ephemeral: true })

@@ -1,24 +1,5 @@
-import { Client, GatewayIntentBits } from "discord.js"
-import { TOKEN } from "./common.js"
+import { getCharacterCampaigns, removeCharacterFromCampaign } from "./campaigns.js"
 
-const client = new Client({
-    intents: [
-        GatewayIntentBits.MessageContent,
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.GuildPresences,
-        GatewayIntentBits.GuildMembers,
-        GatewayIntentBits.DirectMessages,
-    ]
-})
+const a = await removeCharacterFromCampaign("Elettra", "Phandalin")
 
-client.on('ready', () => {
-    console.log(`Logged in as ${client.user.tag}!`)
-})
-
-client.login(TOKEN)
-
-const guild = await client.guilds.fetch("1044166056031297616")
-const member = await guild.members.fetch("299226752272564224")
-const a = member.roles.cache.has("1046812939774087218")
-console.log(a)
+a

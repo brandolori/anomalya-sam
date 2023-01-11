@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "discord.js"
-import { addCampaignToPlayer, addCharacterToCampaign, getCampaign, getCampaigns } from "../campaigns.js"
+import { addCampaignToPlayer, addCharacterToCampaign, getCampaign, getAllCampaigns } from "../campaigns.js"
 import { getCharacter, getLightCharacter, standardCharacterAutocomplete } from "../characters.js"
 import { Command } from "../flow.js"
 import { createPlayer, getPlayer } from "../players.js"
@@ -28,7 +28,7 @@ const command: Command = {
         } else if (focusedOption.name === "campagna") {
             try {
                 const focusedValue = focusedOption.value
-                const choices = (await getCampaigns()).map(el => el.name).slice(0, 24)
+                const choices = (await getAllCampaigns()).map(el => el.name).slice(0, 24)
                 const filtered = choices.filter(choice => choice.toLowerCase().includes(focusedValue.toLowerCase()))
                 await interaction.respond(
                     filtered.map(choice => ({ name: choice, value: choice })),
