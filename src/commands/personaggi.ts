@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "discord.js"
-import { getUserCharacters } from "../characters.js"
+import { getOwnedCharacters } from "../characters.js"
 import { Command } from "../flow.js"
 
 const command: Command = {
@@ -9,7 +9,7 @@ const command: Command = {
     callback: async (interaction) => {
         await interaction.deferReply({ ephemeral: true })
 
-        const userCharacters = await getUserCharacters(interaction.user.id)
+        const userCharacters = await getOwnedCharacters(interaction.user.id)
         const userCharactersString = userCharacters.map(el =>
             `Nome: ${el.name}`
         ).join("\n\n")

@@ -1,6 +1,5 @@
 import { AttachmentBuilder, EmbedBuilder, SlashCommandBuilder } from "discord.js"
-import { isAdmin } from "../core.js"
-import { getAllCharacters, getCharacter, getReadableCharacters, userCanReadCharacter } from "../characters.js"
+import { getCharacter, userCanReadAutocomplete, userCanReadCharacter } from "../characters.js"
 import { Command } from "../flow.js"
 
 const command: Command = {
@@ -14,16 +13,7 @@ const command: Command = {
                 .setRequired(true)),
     autocomplete: async (interaction) => {
         const focusedValue = interaction.options.getFocused()
-        const choices = isAdmin(interaction.user.id)
-            ? (await getAllCharacters()).map(el => el.name)
-            : await getReadableCharacters(interaction.user.id)
-
-        const filtered = choices.filter(choice => choice.toLowerCase().includes(focusedValue.toLowerCase())).slice(0, 25)
-        try {
-            await interaction.respond(
-                filtered.map(choice => ({ name: choice, value: choice })),
-            )
-        } catch (e) { }
+        await userCanReadAutocomplete(focusedValue, interaction)
     },
     callback: async (interaction, _, originalInteraction) => {
         await interaction.deferReply({ ephemeral: true })

@@ -1,6 +1,7 @@
 import { SlashCommandBuilder } from "discord.js"
-import { addCampaignToPlayer, addCharacterToCampaign, getCampaign, getAllCampaigns } from "../campaigns.js"
-import { getCharacter, getLightCharacter, standardCharacterAutocomplete } from "../characters.js"
+import { addCampaignToPlayer, addCharacterToCampaign, getCampaign, campaignAutocomplete } from "../campaigns.js"
+import { getCharacter, getLightCharacter, userCanWriteAutocomplete } from "../characters.js"
+import { isAdmin } from "../core.js"
 import { Command } from "../flow.js"
 import { createPlayer, getPlayer } from "../players.js"
 
@@ -20,20 +21,17 @@ const command: Command = {
                 .setRequired(true)),
     autocomplete: async (interaction) => {
 
+        if (!isAdmin(interaction.user.id)) {
+            await interaction.respond([])
+            return
+        }
         const focusedOption = interaction.options.getFocused(true)
-
         if (focusedOption.name === "personaggio") {
             const focusedValue = focusedOption.value
-            await standardCharacterAutocomplete(focusedValue, interaction)
+            await userCanWriteAutocomplete(focusedValue, interaction)
         } else if (focusedOption.name === "campagna") {
-            try {
-                const focusedValue = focusedOption.value
-                const choices = (await getAllCampaigns()).map(el => el.name).slice(0, 24)
-                const filtered = choices.filter(choice => choice.toLowerCase().includes(focusedValue.toLowerCase()))
-                await interaction.respond(
-                    filtered.map(choice => ({ name: choice, value: choice })),
-                )
-            } catch (e) { }
+            const focusedValue = focusedOption.value
+            await campaignAutocomplete(focusedValue, interaction)
         }
     },
     adminOnly: true,

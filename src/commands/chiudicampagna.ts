@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "discord.js"
-import { deleteCampaign, getCampaign, getAllCampaigns, getPlayerCampaigns, removeCampaignFromPlayer } from "../campaigns.js"
+import { deleteCampaign, getCampaign, removeCampaignFromPlayer, campaignAutocomplete } from "../campaigns.js"
 import { isAdmin } from "../core.js"
 import { Command } from "../flow.js"
 
@@ -13,15 +13,13 @@ const command: Command = {
                 .setRequired(true)
                 .setAutocomplete(true)),
     autocomplete: async (interaction) => {
+        if (!isAdmin(interaction.user.id)) {
+            await interaction.respond([])
+            return
+        }
         const focusedValue = interaction.options.getFocused()
 
-        const choices = isAdmin(interaction.user.id)
-            ? (await getAllCampaigns()).map(el => el.name)
-            : (await getPlayerCampaigns(interaction.user.id)).slice(0, 24)
-        const filtered = choices.filter(choice => choice.toLowerCase().includes(focusedValue.toLowerCase()))
-        await interaction.respond(
-            filtered.map(choice => ({ name: choice, value: choice })),
-        )
+        await campaignAutocomplete(focusedValue, interaction)
     },
     steps: [
         { name: "name", type: "input", prompt: ["Conferma il nome della campagna"] },

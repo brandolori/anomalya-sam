@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "discord.js"
-import { getUserCharacters } from "../characters.js"
+import { getOwnedCharacters } from "../characters.js"
 import { Command } from "../flow.js"
 
 const command: Command = {
@@ -16,7 +16,7 @@ const command: Command = {
 
         const user = originalInteraction.options.getUser("giocatore")
 
-        const userCharacters = await getUserCharacters(user.id)
+        const userCharacters = await getOwnedCharacters(user.id)
         const userCharactersString = userCharacters.map(el =>
             `Nome: ${el.name}`
         ).join("\n\n")

@@ -3,21 +3,23 @@ import { getCampaign, getPlayerCampaigns } from "./campaigns.js"
 import { isAdmin } from "./core.js"
 import { characters, Character, IndexCharacter, LightCharacter } from "./database.js"
 
-const getUserCharacters = async (userId: string) => {
+const getOwnedCharacters = async (userId: string) => {
     const response = await characters.find({ user: userId }, { projection: { _id: false, name: true, user: true } }).toArray()
 
     return response as unknown as IndexCharacter[]
 }
 
 const getReadableCharacters = async (userId: string) => {
-    const userCharacters = (await getUserCharacters(userId)).map(el => el.name)
+    const userCharacters = await getOwnedCharacters(userId)
     const campaignNames = await getPlayerCampaigns(userId)
     const campaigns = await Promise.all(campaignNames.map(async el => await getCampaign(el)))
-    const campaignCharacters = campaigns.map(el => el.characters).flat().map(el => el.name)
+    const campaignCharacters = campaigns.map(el => el.characters).flat()
 
-    const characters = new Set([...campaignCharacters, ...userCharacters])
+    const unique: { [key: string]: IndexCharacter } = {};
 
-    return [...characters]
+    [...userCharacters, ...campaignCharacters].forEach(el => unique[el.name] = el)
+
+    return Object.values(unique)
 }
 
 const getAllCharacters = async () => {
@@ -62,7 +64,7 @@ const userCanReadCharacter = async (userId: string, characterName: string) => {
         return (await characters.countDocuments({ name: characterName })) > 0
     else {
         const readableCharacters = await getReadableCharacters(userId)
-        return readableCharacters.includes(characterName)
+        return readableCharacters.map(el => el.name).includes(characterName)
     }
 }
 
@@ -81,21 +83,43 @@ const updateCharacter = async (name: string, character: Partial<Character>) => {
     return characters.updateOne({ name }, { $set: { ...character } })
 }
 
-const standardCharacterAutocomplete = async (inputValue: string, interaction: AutocompleteInteraction) => {
+const userCanWriteAutocomplete = async (inputValue: string, interaction: AutocompleteInteraction) => {
 
     const characters = isAdmin(interaction.user.id)
         ? await getAllCharacters()
-        : await getUserCharacters(interaction.user.id)
+        : await getOwnedCharacters(interaction.user.id)
 
-    const choices = characters.map(el => el.name)
-    const filtered = choices.filter(choice => choice.toLowerCase().includes(inputValue.toLowerCase())).slice(0, 25)
+    const filtered = characters
+        .map(el => el.name)
+        .filter(choice => choice.toLowerCase().includes(inputValue.toLowerCase()))
+        .slice(0, 25)
     try {
         await interaction.respond(
             filtered.map(choice => ({ name: choice, value: choice })),
         )
-    } catch (e) { }
+    } catch (e) {
+        console.log(`timeout autocompletamento in ${interaction.commandName}`)
+    }
 }
 
+const userCanReadAutocomplete = async (inputValue: string, interaction: AutocompleteInteraction) => {
+
+    const characters = isAdmin(interaction.user.id)
+        ? await getAllCharacters()
+        : await getReadableCharacters(interaction.user.id)
+
+    const filtered = characters
+        .map(el => el.name)
+        .filter(choice => choice.toLowerCase().includes(inputValue.toLowerCase()))
+        .slice(0, 25)
+    try {
+        await interaction.respond(
+            filtered.map(choice => ({ name: choice, value: choice })),
+        )
+    } catch (e) {
+        console.log(`timeout autocompletamento in ${interaction.commandName}`)
+    }
+}
 
 const checkCharacterExists = async (name: string) => {
     return (await characters.countDocuments({ name })) > 0
@@ -114,17 +138,18 @@ const Races = [
 
 export {
     Character,
-    userCanWriteCharacter as userHasCharacter,
-    getUserCharacters,
+    userCanWriteCharacter,
+    userCanReadCharacter,
+    userCanWriteAutocomplete,
+    userCanReadAutocomplete,
+    getOwnedCharacters,
     getAllCharacters,
-    getCharacter,
-    removeCharacter,
     createCharacter,
+    getCharacter,
     updateCharacter,
-    standardCharacterAutocomplete,
+    removeCharacter,
     getLightCharacter,
     checkCharacterExists,
     getReadableCharacters,
-    userCanReadCharacter,
     Races
 }

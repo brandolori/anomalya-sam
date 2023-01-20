@@ -1,4 +1,5 @@
-import { getCharacter, getLightCharacter } from "./characters.js"
+import { AutocompleteInteraction } from "discord.js"
+import { getLightCharacter } from "./characters.js"
 import { isAdmin } from "./core.js"
 import { campaigns, IndexCharacter, players } from "./database.js"
 
@@ -22,7 +23,7 @@ const deleteCampaign = async (name: string) => {
 const getAllCampaigns = async () => {
     const response = campaigns.find({}).toArray()
 
-    return response ?? [] as unknown as Campaign[]
+    return (response ?? []) as unknown as Campaign[]
 }
 
 const getPlayerCampaigns = async (userId: string) => {
@@ -137,6 +138,20 @@ const playerHasCampaign = async (userId: string, campaignName: string) => {
     return playerCampaings?.includes(campaignName)
 }
 
+const campaignAutocomplete = async (inputValue: string, interaction: AutocompleteInteraction) => {
+    try {
+        const choices = isAdmin(interaction.user.id)
+            ? (await getAllCampaigns()).map(el => el.name)
+            : (await getPlayerCampaigns(interaction.user.id)).slice(0, 24)
+        const filtered = choices.filter(choice => choice.toLowerCase().includes(inputValue.toLowerCase()))
+        await interaction.respond(
+            filtered.map(choice => ({ name: choice, value: choice })),
+        )
+    } catch (e) {
+        console.log(`timeout autocompletamento in ${interaction.commandName}`)
+    }
+}
+
 export {
     getCampaign,
     getAllCampaigns,
@@ -150,5 +165,6 @@ export {
     addCampaignToPlayer,
     removeCampaignFromPlayer,
     getCharacterCampaigns,
-    removeCharacterFromCampaignAndUpdatePlayer
+    removeCharacterFromCampaignAndUpdatePlayer,
+    campaignAutocomplete
 }

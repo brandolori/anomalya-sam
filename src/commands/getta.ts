@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "discord.js"
-import { standardCharacterAutocomplete, userHasCharacter, getLightCharacter } from "../characters.js"
+import { userCanWriteAutocomplete, userCanWriteCharacter, getLightCharacter } from "../characters.js"
 import { CARRY_CAPACITY_MESSAGE } from "../common.js"
 import { getEquipmentIndex, getExpandedCharacterInventory, removeFromInventory } from "../equipment.js"
 import { Command } from "../flow.js"
@@ -28,7 +28,7 @@ const command: Command = {
 
         if (focusedOption.name === "personaggio") {
             const focusedValue = focusedOption.value
-            await standardCharacterAutocomplete(focusedValue, interaction)
+            await userCanWriteAutocomplete(focusedValue, interaction)
         } else if (focusedOption.name === "oggetto") {
             try {
                 const focusedValue = focusedOption.value
@@ -50,7 +50,7 @@ const command: Command = {
         const equipmentAmount = originalInteraction.options.getNumber("numero") ?? 1
         const sanitizedEquipmentAmount = Math.max(equipmentAmount, 1)
 
-        if (!(await userHasCharacter(interaction.user.id, characterName))) {
+        if (!(await userCanWriteCharacter(interaction.user.id, characterName))) {
             await interaction.editReply({ content: `Errore: non esiste il personaggio '${characterName}'` })
             return
         }

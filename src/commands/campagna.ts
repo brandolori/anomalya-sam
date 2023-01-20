@@ -1,6 +1,5 @@
 import { SlashCommandBuilder } from "discord.js"
-import { getCampaign, getAllCampaigns, getPlayerCampaigns, playerHasCampaign } from "../campaigns.js"
-import { isAdmin } from "../core.js"
+import { getCampaign, playerHasCampaign, campaignAutocomplete } from "../campaigns.js"
 import { Command } from "../flow.js"
 
 const command: Command = {
@@ -15,13 +14,7 @@ const command: Command = {
     autocomplete: async (interaction) => {
         const focusedValue = interaction.options.getFocused()
 
-        const choices = isAdmin(interaction.user.id)
-            ? (await getAllCampaigns()).map(el => el.name)
-            : (await getPlayerCampaigns(interaction.user.id)).slice(0, 24)
-        const filtered = choices.filter(choice => choice.toLowerCase().includes(focusedValue.toLowerCase()))
-        await interaction.respond(
-            filtered.map(choice => ({ name: choice, value: choice })),
-        )
+        await campaignAutocomplete(focusedValue, interaction)
     },
     callback: async (interaction, _, originalInteraction) => {
         await interaction.deferReply({ ephemeral: true })

@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "discord.js"
-import { updateCharacter, userHasCharacter, standardCharacterAutocomplete } from "../characters.js"
+import { updateCharacter, userCanWriteCharacter, userCanWriteAutocomplete } from "../characters.js"
 import { Command } from "../flow.js"
 
 const command: Command = {
@@ -13,7 +13,7 @@ const command: Command = {
                 .setAutocomplete(true)),
     autocomplete: async (interaction) => {
         const focusedValue = interaction.options.getFocused()
-        await standardCharacterAutocomplete(focusedValue, interaction)
+        await userCanWriteAutocomplete(focusedValue, interaction)
     },
     steps: [
         { name: "description", type: "input", prompt: ["Inserisci una descrizione del personaggio"] },
@@ -22,7 +22,7 @@ const command: Command = {
 
         const characterName = originalInteraction.options.getString("personaggio")
 
-        if (!(await userHasCharacter(interaction.user.id, characterName))) {
+        if (!(await userCanWriteCharacter(interaction.user.id, characterName))) {
             await interaction.followUp({ content: `Errore: non esiste il personaggio '${characterName}'`, ephemeral: true })
             return
         }

@@ -14,10 +14,22 @@ const command: Command = {
         .addStringOption(option =>
             option.setName("nome")
                 .setDescription("Il nome completo del nuovo personaggio")
-                .setRequired(true)),
+                .setRequired(true))
+        .addStringOption(option =>
+            option.setName("razza")
+                .setDescription("La razza del personaggio")
+                .setRequired(true)
+                .setAutocomplete(true)),
+    autocomplete: async (interaction) => {
+        const focusedValue = interaction.options.getFocused()
+
+        const filtered = Races.filter(choice => choice.toLowerCase().includes(focusedValue.toLowerCase()))
+        await interaction.respond(
+            filtered.map(choice => ({ name: choice, value: choice })),
+        )
+    },
     steps: [
         { name: "description", type: "input", prompt: ["Inserisci una descrizione del personaggio"] },
-        { name: "race", type: "choice", options: Races, prompt: "Scegli la razza del personaggio" },
 
         { name: "strength", type: "choice", options: abilityChoices, prompt: "Scegli il punteggio di forza del personaggio" },
         { name: "dexterity", type: "choice", options: abilityChoices, prompt: "Scegli il punteggio di destrezza del personaggio" },
@@ -29,10 +41,11 @@ const command: Command = {
     callback: async (interaction, data, originalInteraction) => {
 
         const characterName = originalInteraction.options.getString("nome")
+        const characterRace = originalInteraction.options.getString("razza")
 
         const character: Partial<Character> = {
             name: characterName,
-            race: data.race,
+            race: characterRace,
             strength: Number.parseInt(data.strength),
             dexterity: Number.parseInt(data.dexterity),
             constitution: Number.parseInt(data.constitution),

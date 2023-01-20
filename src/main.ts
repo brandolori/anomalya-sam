@@ -14,7 +14,7 @@ import { client } from './core.js'
 import { ChannelType } from 'discord.js'
 import fetch from 'node-fetch'
 import sharp from "sharp"
-import { getUserCharacters, updateCharacter } from './characters.js'
+import { getOwnedCharacters, updateCharacter } from './characters.js'
 import portafoglio from './commands/portafoglio.js'
 import giocatore from './commands/giocatore.js'
 import spendi from './commands/spendi.js'
@@ -59,7 +59,7 @@ client.on("messageCreate", async message => {
         || message.author.bot)
         return
 
-    const characters = await getUserCharacters(message.author.id)
+    const characters = await getOwnedCharacters(message.author.id)
 
     if (characters.length == 0) {
         await message.reply({ content: `Errore! Non hai mai creato nessun personaggio. Inizia ora con /crea` })
