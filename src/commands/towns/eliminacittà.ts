@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from "discord.js"
-import { isAdmin } from "../core.js"
-import { Command } from "../flow.js"
-import { createTown, deleteTown, getAllTownNames, getTown } from "../towns.js"
+import { isAdmin } from "../../core.js"
+import { Command } from "../../flow.js"
+import { createTown, deleteTown, getAllTownNames, getTown } from "../../towns.js"
 
 const command: Command = {
     builder: new SlashCommandBuilder()

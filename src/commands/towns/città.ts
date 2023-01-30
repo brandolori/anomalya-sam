@@ -1,6 +1,6 @@
 import { AttachmentBuilder, EmbedBuilder, SlashCommandBuilder } from "discord.js"
-import { Command } from "../flow.js"
-import { getAllTownNames, getTown } from "../towns.js"
+import { Command } from "../../flow.js"
+import { getAllTownNames, getTown } from "../../towns.js"
 
 const command: Command = {
     builder: new SlashCommandBuilder()

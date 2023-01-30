@@ -1,9 +1,9 @@
 import { SlashCommandBuilder } from "discord.js"
-import { addCampaignToPlayer, addCharacterToCampaign, getCampaign, campaignAutocomplete } from "../campaigns.js"
-import { getCharacter, getLightCharacter, userCanWriteAutocomplete } from "../characters.js"
-import { isAdmin } from "../core.js"
-import { Command } from "../flow.js"
-import { createPlayer, getPlayer } from "../players.js"
+import { addCampaignToPlayer, addCharacterToCampaign, getCampaign, campaignAutocomplete } from "../../campaigns.js"
+import { getCharacter, getLightCharacter, userCanWriteAutocomplete } from "../../characters.js"
+import { isAdmin } from "../../core.js"
+import { Command } from "../../flow.js"
+import { createPlayer, getPlayer } from "../../players.js"
 
 const command: Command = {
     builder: new SlashCommandBuilder()
