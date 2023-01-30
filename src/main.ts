@@ -10,11 +10,9 @@ import getta from './commands/getta.js'
 import modificacaratteristica from './commands/modificacaratteristica.js'
 import personaggio from './commands/personaggio.js'
 import guadagna from './commands/guadagna.js'
-import { client } from './core.js'
+import { client, isAdmin } from './core.js'
 import { ChannelType } from 'discord.js'
-import fetch from 'node-fetch'
-import sharp from "sharp"
-import { getOwnedCharacters, updateCharacter } from './characters.js'
+import { addImageToCharacter } from './characters.js'
 import portafoglio from './commands/portafoglio.js'
 import giocatore from './commands/giocatore.js'
 import spendi from './commands/spendi.js'
@@ -26,6 +24,10 @@ import campagna from './commands/campagna.js'
 import campagne from './commands/campagne.js'
 import rimuovipersonaggio from './commands/rimuovipersonaggio.js'
 import chiudicampagna from './commands/chiudicampagna.js'
+import creacittà from './commands/creacittà.js'
+import eliminacittà from './commands/eliminacittà.js'
+import { addImageToTown } from './towns.js'
+import città from './commands/città.js'
 
 registerFlows(
     crea,
@@ -49,35 +51,29 @@ registerFlows(
     campagna,
     campagne,
     rimuovipersonaggio,
-    chiudicampagna
+    chiudicampagna,
+    creacittà,
+    eliminacittà,
+    città
 )
 
-// caricamento immagine personaggio
+// caricamento immagine personaggio/città
 client.on("messageCreate", async message => {
     if (message.channel.type != ChannelType.DM
         || message.attachments.size != 1
         || message.author.bot)
         return
 
-    const characters = await getOwnedCharacters(message.author.id)
-
-    if (characters.length == 0) {
-        await message.reply({ content: `Errore! Non hai mai creato nessun personaggio. Inizia ora con /crea` })
+    // non-admin possono solo aggiornare l'immagine ai personaggi
+    if (!isAdmin(message.author.id)) {
+        await addImageToCharacter(message, message as any)
         return
     }
 
-    const { data: characterName, interaction } = await requestChoice(message, characters.map(el => el.name), "A quale personaggio aggiornare l'immagine?")
+    const { data: choice, interaction } = await requestChoice(message, ["città", "personaggio"], "A quale entità aggiornare l'immagine?")
 
-    const res = await fetch(message.attachments.first()!.url)
-    const inputBuffer = Buffer.from(await res.arrayBuffer())
-
-    const outputBuffer = await sharp(inputBuffer)
-        .resize(360, 360, { fit: 'outside', withoutEnlargement: true })
-        .webp({ quality: 65, effort: 6, alphaQuality: 90 })
-        .toBuffer()
-
-    await updateCharacter(characterName, { picture: outputBuffer })
-
-    await interaction.followUp({ content: `L'immagine di ${characterName} è stata aggiornata con successo!` })
+    if (choice == "personaggio")
+        await addImageToCharacter(message, interaction)
+    else if (choice == "città")
+        await addImageToTown(message, interaction)
 })
-

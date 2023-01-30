@@ -1,4 +1,17 @@
-import { characters, equipment, Character, Equipment, EquipmentInInventory } from "./database.js"
+import { Character } from "./characters.js"
+import { characters, equipment } from "./database.js"
+
+export type Equipment = {
+    name: string,
+    index: string,
+    weight: number,
+    cost: { quantity: number, unit: "gp" | "sp" | "bp" }
+}
+export type EquipmentInInventory = {
+    equipment: string,
+    location: string,
+    amount: number
+}
 
 const getEquipmentNames = async () => {
     const response = await equipment.find({}, { projection: { _id: false, name: true } }).map(el => el.name).toArray()
@@ -173,13 +186,17 @@ const checkEquipmentExists = async (name: string) => {
 const Money = ["gp", "sp", "bp"]
 
 const getCharacterInventory = async (character: string, location: string) => {
-    const response = (await characters.findOne({ name: character, "inventory.location": location }, { projection: { inventory: true } })) as unknown as Character
-    return response?.inventory?.filter(el => el.location == location).filter(el => !Money.includes(el.equipment)) ?? []
+    const response = (await characters.findOne({ name: character }, { projection: { _id: false, inventory: true } })) as unknown as Character
+    return response?.inventory
+        ?.filter(el => el.location == location)
+        ?.filter(el => !Money.includes(el.equipment)) ?? []
 }
 
 const getCharacterWallet = async (character: string, location: string) => {
-    const response = (await characters.findOne({ name: character, "inventory.location": location }, { projection: { inventory: true } })) as unknown as Character
-    return response?.inventory?.filter(el => el.location == location).filter(el => Money.includes(el.equipment)) ?? []
+    const response = (await characters.findOne({ name: character }, { projection: { _id: false, inventory: true } })) as unknown as Character
+    return response?.inventory
+        ?.filter(el => el.location == location)
+        ?.filter(el => Money.includes(el.equipment)) ?? []
 }
 
 const getExpandedCharacterInventory = async (character: string, location: string) => {

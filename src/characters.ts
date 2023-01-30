@@ -1,7 +1,30 @@
-import { AutocompleteInteraction } from "discord.js"
+import { AutocompleteInteraction, Message, SelectMenuInteraction } from "discord.js"
+import fetch from "node-fetch"
+import sharp from "sharp"
 import { getCampaign, getPlayerCampaigns } from "./campaigns.js"
 import { isAdmin } from "./core.js"
-import { characters, Character, IndexCharacter, LightCharacter } from "./database.js"
+import { characters } from "./database.js"
+import { EquipmentInInventory } from "./equipment.js"
+import { requestChoice } from "./flow.js"
+
+export type Character = {
+    name: string,
+    race: string,
+    strength: number,
+    dexterity: number,
+    constitution: number,
+    intelligence: number,
+    winsdom: number,
+    charisma: number,
+    description: string,
+    inventory: EquipmentInInventory[]
+    user: string,
+    picture: any
+}
+
+export type IndexCharacter = { name: string, user: string }
+
+export type LightCharacter = Omit<Character, "inventory" | "picture">
 
 const getOwnedCharacters = async (userId: string) => {
     const response = await characters.find({ user: userId }, { projection: { _id: false, name: true, user: true } }).toArray()
@@ -125,6 +148,35 @@ const checkCharacterExists = async (name: string) => {
     return (await characters.countDocuments({ name })) > 0
 }
 
+const addImageToCharacter = async (message: Message, currentInteraction: SelectMenuInteraction) => {
+    const characters = await getOwnedCharacters(message.author.id)
+
+    if (characters.length == 0) {
+        const content = { content: `Errore! Non hai mai creato nessun personaggio. Inizia ora con /crea` }
+
+        if (currentInteraction.replied)
+            await currentInteraction.followUp(content)
+        else
+            await currentInteraction.reply(content)
+        return
+    }
+
+    const { data: characterName, interaction } = await requestChoice(currentInteraction, characters.map(el => el.name), "A quale personaggio aggiornare l'immagine?")
+
+    const res = await fetch(message.attachments.first()!.url)
+    const inputBuffer = Buffer.from(await res.arrayBuffer())
+
+    const outputBuffer = await sharp(inputBuffer)
+        .resize(360, 360, { fit: 'outside', withoutEnlargement: true })
+        .removeAlpha()
+        .webp({ quality: 65, effort: 6 })
+        .toBuffer()
+
+    await updateCharacter(characterName, { picture: outputBuffer })
+
+    await interaction.followUp({ content: `L'immagine di ${characterName} è stata aggiornata con successo!` })
+}
+
 const Races = [
     "Umano",
     "Nano",
@@ -137,7 +189,6 @@ const Races = [
 ]
 
 export {
-    Character,
     userCanWriteCharacter,
     userCanReadCharacter,
     userCanWriteAutocomplete,
@@ -151,5 +202,6 @@ export {
     getLightCharacter,
     checkCharacterExists,
     getReadableCharacters,
+    addImageToCharacter,
     Races
 }
