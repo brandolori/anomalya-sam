@@ -177,6 +177,24 @@ const addImageToCharacter = async (message: Message, currentInteraction: SelectM
     await interaction.followUp({ content: `L'immagine di ${characterName} è stata aggiornata con successo!` })
 }
 
+
+const getCharactersWithoutBackground = async (userId: string) => {
+    const promise = isAdmin(userId)
+        ? characters.find({ $or: [{ background: null }, { "background.approved": false }] }).toArray()
+        : characters.find({ $or: [{ background: null, user: userId }, { "background.approved": false, user: userId }] }).toArray()
+
+    const value = await promise
+
+    return value as unknown as Character[]
+}
+
+const getCharactersAwaitingApproval = async () => {
+    const value = await characters.find({ "background.approved": false }).toArray()
+
+    return value as unknown as Character[]
+}
+
+
 const Races = [
     "Umano",
     "Nano",
@@ -203,5 +221,7 @@ export {
     checkCharacterExists,
     getReadableCharacters,
     addImageToCharacter,
+    getCharactersWithoutBackground,
+    getCharactersAwaitingApproval,
     Races
 }
