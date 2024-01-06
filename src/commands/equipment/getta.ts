@@ -1,26 +1,26 @@
 import { SlashCommandBuilder } from "discord.js"
-import { userCanWriteAutocomplete, userCanWriteCharacter, getLightCharacter } from "../characters.js"
-import { CARRY_CAPACITY_MESSAGE } from "../common.js"
-import { addToInventory, getEquipmentIndex, getEquipmentNames, getExpandedCharacterInventory } from "../equipment.js"
-import { Command } from "../flow.js"
+import { userCanWriteAutocomplete, userCanWriteCharacter, getLightCharacter } from "../../characters.js"
+import { CARRY_CAPACITY_MESSAGE } from "../../common.js"
+import { getEquipmentIndex, getExpandedCharacterInventory, removeFromInventory } from "../../equipment.js"
+import { Command } from "../../flow.js"
 
 const command: Command = {
     builder: new SlashCommandBuilder()
-        .setName("raccogli")
-        .setDescription("Aggiungi un elemento all'inventario del personaggio")
+        .setName("getta")
+        .setDescription("Rimuovi un elemento dall'inventario del personaggio")
         .addStringOption(option =>
             option.setName("personaggio")
-                .setDescription("Il personaggio a cui dare l'oggetto")
+                .setDescription("Il personaggio a cui rimuovere l'oggetto")
                 .setAutocomplete(true)
                 .setRequired(true))
         .addStringOption(option =>
             option.setName("oggetto")
-                .setDescription("L'oggetto da inserire nell'inventario")
+                .setDescription("L'oggetto da rimuovere dall'inventario")
                 .setAutocomplete(true)
                 .setRequired(true))
         .addNumberOption(option =>
             option.setName("numero")
-                .setDescription("La qantità di oggetti da raccogliere")
+                .setDescription("La qantità di oggetti da rimuovere")
         ),
     autocomplete: async (interaction) => {
 
@@ -32,7 +32,8 @@ const command: Command = {
         } else if (focusedOption.name === "oggetto") {
             try {
                 const focusedValue = focusedOption.value
-                const choices = (await getEquipmentNames()).slice(0, 24)
+                const personaggio = interaction.options.getString("personaggio")
+                const choices = (await getExpandedCharacterInventory(personaggio, "zaino")).slice(0, 24).map(el => el.name)
                 const filtered = choices.filter(choice => choice.toLowerCase().includes(focusedValue.toLowerCase()))
                 await interaction.respond(
                     filtered.map(choice => ({ name: choice, value: choice })),
@@ -54,28 +55,36 @@ const command: Command = {
             return
         }
 
-        const eqIndex = await getEquipmentIndex(equipmentName)
+        const equipmentIndex = await getEquipmentIndex(equipmentName)
 
-        if (!eqIndex) {
+        if (!equipmentIndex) {
             await interaction.editReply({ content: `Errore: non esiste l'oggetto '${equipmentName}'` })
             return
         }
 
-        await addToInventory(characterName, "zaino", eqIndex, sanitizedEquipmentAmount)
+        try {
+            await removeFromInventory(characterName, "zaino", equipmentIndex, sanitizedEquipmentAmount)
 
-        const equipment = await getExpandedCharacterInventory(characterName, "zaino")
+            const equipment = await getExpandedCharacterInventory(characterName, "zaino")
 
-        const totalWeight = equipment.reduce((prev, cur) => prev + (cur.amount * cur.weight), 0)
+            const totalWeight = equipment.reduce((prev, cur) => prev + (cur.amount * cur.weight), 0)
 
-        await interaction.editReply({ content: `Operazione completata con successo! Lo zaino di ${characterName} pesa ora ${totalWeight} libbre` })
+            await interaction.editReply({ content: `Operazione completata con successo! Lo zaino di ${characterName} pesa ora ${totalWeight} libbre` })
 
-        const character = await getLightCharacter(characterName)
+            const character = await getLightCharacter(characterName)
 
-        const carryCapacity = character.strength * 15
+            const carryCapacity = character.strength * 15
 
-        if (totalWeight > carryCapacity)
-            await interaction.followUp({ content: CARRY_CAPACITY_MESSAGE, ephemeral: true })
+            if (totalWeight > carryCapacity)
+                await interaction.followUp({ content: CARRY_CAPACITY_MESSAGE, ephemeral: true })
 
+        } catch (e) {
+            if (e.message == "notpresent")
+                await interaction.editReply({ content: `Errore: nello zaino di ${characterName} non c'è neanche un ${equipmentName}` })
+            else
+                await interaction.editReply({ content: `Errore generico` })
+
+        }
     }
 }
 export default command

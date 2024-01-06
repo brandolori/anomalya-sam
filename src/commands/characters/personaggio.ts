@@ -1,6 +1,6 @@
 import { AttachmentBuilder, EmbedBuilder, SlashCommandBuilder } from "discord.js"
-import { getCharacter, userCanReadAutocomplete, userCanReadCharacter } from "../characters.js"
-import { Command } from "../flow.js"
+import { getCharacter, userCanReadAutocomplete, userCanReadCharacter } from "../../characters.js"
+import { Command } from "../../flow.js"
 
 const command: Command = {
     builder: new SlashCommandBuilder()

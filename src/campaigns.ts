@@ -1,7 +1,7 @@
 import { AutocompleteInteraction } from "discord.js"
-import { getLightCharacter } from "./characters.js"
+import { getLightCharacter, IndexCharacter } from "./characters.js"
 import { isAdmin } from "./core.js"
-import { campaigns, IndexCharacter, players } from "./database.js"
+import { campaigns, players } from "./database.js"
 
 type Campaign = {
     name: string

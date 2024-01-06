@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from "discord.js"
-import { updateCharacter, userCanWriteCharacter, userCanWriteAutocomplete } from "../characters.js"
-import { Command } from "../flow.js"
+import { updateCharacter, userCanWriteCharacter, userCanWriteAutocomplete } from "../../characters.js"
+import { Command } from "../../flow.js"
 
 const command: Command = {
     builder: new SlashCommandBuilder()

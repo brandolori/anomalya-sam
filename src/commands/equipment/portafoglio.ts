@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from "discord.js"
-import { userCanWriteCharacter, userCanWriteAutocomplete } from "../characters.js"
-import { getCharacterWallet } from "../equipment.js"
-import { Command } from "../flow.js"
+import { userCanWriteCharacter, userCanWriteAutocomplete } from "../../characters.js"
+import { getCharacterWallet } from "../../equipment.js"
+import { Command } from "../../flow.js"
 
 const command: Command = {
     builder: new SlashCommandBuilder()

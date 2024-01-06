@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from "discord.js"
-import { Character, createCharacter, Races } from "../characters.js"
-import { Command } from "../flow.js"
+import { Character, createCharacter, Races } from "../../characters.js"
+import { Command } from "../../flow.js"
 
 const abilityChoices = Array.from(Array(20).keys())
     .reverse()

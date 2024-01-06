@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from "discord.js"
-import { createCampaign } from "../campaigns.js"
-import { Command } from "../flow.js"
+import { createCampaign } from "../../campaigns.js"
+import { Command } from "../../flow.js"
 
 const command: Command = {
     builder: new SlashCommandBuilder()
